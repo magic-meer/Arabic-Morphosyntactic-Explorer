@@ -1,0 +1,75 @@
+"""Pydantic models for morphology-related API requests and responses."""
+
+from typing import Optional
+
+from pydantic import BaseModel, Field
+
+
+class MorphologyFeatures(BaseModel):
+    """Morphological features of a word."""
+
+    pos: Optional[str] = Field(default=None, description="Part of speech")
+    lemma: Optional[str] = Field(default=None, description="Lemma/dictionary form")
+    root: Optional[str] = Field(
+        default=None, description="Root form (for derived words)"
+    )
+    gender: Optional[str] = Field(
+        default=None, description="Gender (masculine/feminine)"
+    )
+    number: Optional[str] = Field(default=None, description="Number (singular/plural)")
+    case: Optional[str] = Field(
+        default=None, description="Grammatical case (nominative/accusative/genitive)"
+    )
+    mood: Optional[str] = Field(
+        default=None, description="Mood (indicative/subjunctive/jussive)"
+    )
+    voice: Optional[str] = Field(default=None, description="Voice (active/passive)")
+    aspect: Optional[str] = Field(
+        default=None, description="Aspect (perfect/imperfect)"
+    )
+    person: Optional[str] = Field(
+        default=None, description="Person (first/second/third)"
+    )
+    pronominal_suffix: Optional[str] = Field(
+        default=None, description="Pronominal suffix"
+    )
+
+
+class MorphologyWord(BaseModel):
+    """A word with its morphological analysis."""
+
+    form: str = Field(description="The word form as it appears")
+    tag: str = Field(description="Morphological tag from the corpus")
+    features: MorphologyFeatures = Field(description="Parsed morphological features")
+    original_features: Optional[dict[str, str]] = Field(
+        default=None, description="Original features as key-value pairs"
+    )
+
+
+class MorphologyResponse(BaseModel):
+    """Response model for verse morphological analysis."""
+
+    chapter: int = Field(description="Chapter (surah) number")
+    verse: int = Field(description="Verse number within the chapter")
+    words: list[MorphologyWord] = Field(
+        default_factory=list, description="List of analyzed words"
+    )
+
+
+class MorphologyAnalysisRequest(BaseModel):
+    """Request model for text morphological analysis."""
+
+    text: str = Field(description="Text to analyze")
+    include_roots: bool = Field(
+        default=True, description="Whether to include root extraction"
+    )
+
+
+class MorphologyAnalysisResponse(BaseModel):
+    """Response model for text morphological analysis."""
+
+    text: str = Field(description="Original input text")
+    words: list[MorphologyWord] = Field(
+        default_factory=list, description="List of analyzed words"
+    )
+    tokens_count: int = Field(description="Total number of tokens analyzed")
