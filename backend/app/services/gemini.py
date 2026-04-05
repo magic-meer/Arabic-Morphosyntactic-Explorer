@@ -1,0 +1,200 @@
+"""Gemini AI service for conversational Quranic tutoring."""
+
+from typing import Generator
+
+import google.generativeai as genai
+
+from app.utils.logging import get_logger
+
+logger = get_logger(__name__)
+
+# System prompt for Quranic tutoring
+SYSTEM_PROMPT = """You are an expert tutor in Classical Arabic, specializing in Quranic linguistics.
+Your role is to help students understand the Morphology (الصَرْفُ - Sarf) and Syntax (العَرَبِيَّةُ - I'rab) of Quranic verses.
+
+When answering questions:
+1. Always ground your explanations in the provided Quranic verses
+2. Explain morphological features including: root (جَذْر), lemma (مَصْدَر), part of speech (فَصْل), gender (جِنْس), number (عَدَد), case (حَالَة)
+3. Provide both Arabic technical terms and their English translations
+4. Be pedagogical, encouraging, and patient
+5. Use clear explanations suitable for learners of varying levels
+6. When discussing verse content, reference the specific chapter and verse number
+
+Morphological terms to use:
+- جَذْر (root) - The triliteral or quadriliteral root of the word
+- مَصْدَر (lemma/root word) - The dictionary form
+- فَصْل (part of speech) - noun (اسم), verb (فعل), particle (حرف)
+- جِنْس (gender) - masculine (مُذَكَّر), feminine (مُؤَنَّث)
+- عَدَد (number) - singular (مُفْرَد), dual (مُثَنَّى), plural (جَمْع)
+- حَالَة (case) - nominative (مَرْفُوع), accusative (مَنْصُوب), genitive (مَجْرُور)
+
+Syntax terms to use:
+- مُبْتَدَأ (subject/beginning) - The nominal phrase that the sentence starts with
+- خَبَر (predicate) - The comment about the subject
+- فِعْل (verb) - The verbal predicate
+- فَاعِل (agent) - The doer of the action
+- مَفْعُول بِهِ (object) - The recipient of the action
+- مَجْرُور (genitive) - Prepositional phrase complement
+
+Always maintain respect for the sacred nature of the Quranic text in your explanations."""
+
+
+class GeminiServiceError(Exception):
+    """Exception raised for Gemini service errors."""
+
+    pass
+
+
+class GeminiService:
+    """Service for Gemini AI integration with Quranic tutoring capabilities.
+
+    Uses Gemini 2.0 Flash (experimental) for conversational tutoring about
+    Quranic Arabic morphology and syntax.
+    """
+
+    def __init__(self, api_key: str) -> None:
+        """Initialize the Gemini service.
+
+        Args:
+            api_key: Google API key for Gemini access.
+
+        Raises:
+            GeminiServiceError: If configuration fails.
+        """
+        if not api_key:
+            raise GeminiServiceError("API key is required")
+
+        try:
+            genai.configure(api_key=api_key)
+            self._model = genai.GenerativeModel(
+                model_name="gemini-2.0-flash-exp",
+                system_instruction=SYSTEM_PROMPT,
+            )
+            logger.info("Gemini service initialized with model gemini-2.0-flash-exp")
+        except Exception as e:
+            raise GeminiServiceError(f"Failed to configure Gemini: {e}") from e
+
+    def format_context_verses(self, verses: list[dict]) -> str:
+        """Format verses as context string for prompts.
+
+        Args:
+            verses: List of verse dictionaries with keys:
+                - chapter: Chapter number (surah)
+                - verse: Verse number
+                - text: Arabic text of the verse
+                - translation: Optional English translation
+
+        Returns:
+            Formatted string with each verse on a new line in format:
+            "[chapter:verse] Arabic text"
+        """
+        if not verses:
+            return ""
+
+        lines = []
+        for verse in verses:
+            chapter = verse.get("chapter", 0)
+            verse_num = verse.get("verse", 0)
+            text = verse.get("text", "")
+
+            if text:
+                lines.append(f"[{chapter}:{verse_num}] {text}")
+
+        return "\n".join(lines)
+
+    def generate_response(
+        self, user_message: str, context_verses: list[dict], cached: bool = False
+    ) -> str:
+        """Generate a response to user message with context verses.
+
+        Args:
+            user_message: The user's question or message.
+            context_verses: List of verse dictionaries to use as context.
+            cached: Whether to use cached context (not currently implemented).
+
+        Returns:
+            Generated response text from Gemini.
+
+        Raises:
+            GeminiServiceError: If generation fails.
+        """
+        try:
+            # Format context verses
+            context_text = self.format_context_verses(context_verses)
+
+            # Build the full prompt
+            if context_text:
+                prompt = f"""Context verses:
+{context_text}
+
+User question: {user_message}"""
+            else:
+                prompt = user_message
+
+            # Generate response
+            response = self._model.generate_content(prompt)
+
+            if response and hasattr(response, "text"):
+                return response.text
+            else:
+                logger.warning("Empty response from Gemini")
+                return "I apologize, but I could not generate a response. Please try again."
+
+        except Exception as e:
+            logger.error(f"Error generating response: {e}")
+            raise GeminiServiceError(f"Failed to generate response: {e}") from e
+
+    def generate_response_streaming(
+        self, user_message: str, context_verses: list[dict]
+    ) -> Generator[str, None, None]:
+        """Generate a streaming response to user message with context verses.
+
+        Args:
+            user_message: The user's question or message.
+            context_verses: List of verse dictionaries to use as context.
+
+        Yields:
+            Text chunks from the streaming response.
+
+        Raises:
+            GeminiServiceError: If generation fails.
+        """
+        try:
+            # Format context verses
+            context_text = self.format_context_verses(context_verses)
+
+            # Build the full prompt
+            if context_text:
+                prompt = f"""Context verses:
+{context_text}
+
+User question: {user_message}"""
+            else:
+                prompt = user_message
+
+            # Generate streaming response
+            response = self._model.generate_content(prompt, stream=True)
+
+            for chunk in response:
+                if chunk and hasattr(chunk, "text") and chunk.text:
+                    yield chunk.text
+
+        except Exception as e:
+            logger.error(f"Error in streaming response: {e}")
+            raise GeminiServiceError(
+                f"Failed to generate streaming response: {e}"
+            ) from e
+
+    def is_available(self) -> bool:
+        """Check if Gemini API is available.
+
+        Returns:
+            True if Gemini is available and responding, False otherwise.
+        """
+        try:
+            # Simple test by generating a minimal response
+            response = self._model.generate_content("test")
+            return response is not None and hasattr(response, "text")
+        except Exception as e:
+            logger.warning(f"Gemini availability check failed: {e}")
+            return False
