@@ -16,11 +16,14 @@ def _get_rag_pipeline() -> RAGPipeline:
     Returns:
         RAGPipeline instance
     """
-    from app.services.gemini import gemini_service
-    from app.services.morphology import morphology_service
+    from app.config import settings
+    from app.services.gemini import GeminiService
+    from app.services.morphology import MorphologyService
     from app.services.vector_store import VectorStore
 
     vector_store = VectorStore()
+    gemini_service = GeminiService(api_key=settings.gemini_api_key)
+    morphology_service = MorphologyService()
 
     return RAGPipeline(
         vector_store=vector_store,
