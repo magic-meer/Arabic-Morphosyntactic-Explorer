@@ -31,7 +31,7 @@ class Settings(BaseSettings):
 
     # Corpus path
     corpus_path: Path = Field(
-        default=Path("../dataset/extracted/quranic-corpus-morphology-0.4.txt"),
+        default=Path("../../../dataset/extracted/quranic-corpus-morphology-0.4.txt"),
         description="Path to Quranic corpus file",
     )
 

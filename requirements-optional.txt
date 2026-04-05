@@ -1,0 +1,19 @@
+# Optional heavy dependencies
+# Install only if needed: pip install -r requirements-optional.txt
+
+# Arabic morphological analysis (CAMeL Tools)
+# Note: Requires Java and specific setup - see https://github.com/CAMeL-Lab/camel_tools
+camel-tools>=1.4.0
+
+# Vector database for RAG (ChromaDB)
+# Alternative: Could use FAISS or simple JSON file for small datasets
+chromadb>=0.4.0
+
+# Sentence embeddings for semantic search
+# Heavy (pulls ~2GB torch) - use only if you need neural embeddings
+# Alternative: Use TF-IDF (sklearn) or BM25 for lighter search
+sentence-transformers>=2.2.0
+
+# Development tools (already in main requirements)
+# ruff==0.1.11
+# mypy==1.8.0

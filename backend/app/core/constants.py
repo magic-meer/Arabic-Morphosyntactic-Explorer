@@ -19,7 +19,7 @@ class LogLevel(str, Enum):
 
 
 # API prefixes
-API_PREFIX = f"/api/{APIVersion.V1}"
+API_PREFIX = f"/api/{APIVersion.V1.value}"
 
 # Corpus
 CORPUS_HEADER_LINES = 57
