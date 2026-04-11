@@ -3,11 +3,15 @@
     "name": "Arabic Morphosyntactic Explorer",
     "slug": "arabic-morphosyntactic-explorer",
     "version": "1.0.0",
+    "orientation": "default",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.arabicmorphosyntactic.explorer"
+    },
     "android": {
       "package": "com.arabicmorphosyntactic.explorer"
-    },
-    "ios": {
-      "bundleIdentifier": "com.arabicmorphosyntactic.explorer"
     },
     "extra": {
       "API_BASE_URL": "http://localhost:8000"
