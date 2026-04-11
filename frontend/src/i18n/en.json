@@ -1,0 +1,52 @@
+{
+  "app": {
+    "title": "Arabic Morphosyntactic Explorer",
+    "subtitle": "Quranic Learning Assistant"
+  },
+  "home": {
+    "search": "Search verses...",
+    "browseChapters": "Browse Chapters",
+    "randomVerse": "Random Verse",
+    "aiTutor": "AI Tutor"
+  },
+  "verses": {
+    "chapter": "Chapter",
+    "verse": "Verse",
+    "search": "Search",
+    "noResults": "No verses found"
+  },
+  "morphology": {
+    "title": "Morphology Analysis",
+    "word": "Word",
+    "pos": "Part of Speech",
+    "root": "Root",
+    "lemma": "Lemma",
+    "gender": "Gender",
+    "number": "Number",
+    "case": "Case"
+  },
+  "chat": {
+    "title": "AI Tutor",
+    "placeholder": "Ask about Arabic...",
+    "send": "Send",
+    "thinking": "Thinking..."
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "english": "English",
+    "arabic": "Arabic",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "about": "About",
+    "version": "Version"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  }
+}

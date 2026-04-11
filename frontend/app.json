@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "Arabic Morphosyntactic Explorer",
+    "slug": "arabic-morphosyntactic-explorer",
+    "version": "1.0.0",
+    "android": {
+      "package": "com.arabicmorphosyntactic.explorer"
+    },
+    "ios": {
+      "bundleIdentifier": "com.arabicmorphosyntactic.explorer"
+    },
+    "extra": {
+      "API_BASE_URL": "http://localhost:8000"
+    }
+  }
+}
