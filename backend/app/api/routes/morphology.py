@@ -105,7 +105,7 @@ async def analyze_text(
         words.append(
             MorphologyWord(
                 form=word_data.get("form", ""),
-                tag=word_data.get("tag", ""),
+                tag=word_data.get("tag") or "",
                 features=_convert_features(features_dict),
                 original_features=None,
             )

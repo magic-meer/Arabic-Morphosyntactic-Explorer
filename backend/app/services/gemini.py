@@ -2,7 +2,8 @@
 
 from typing import Generator
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 from app.utils.logging import get_logger
 
@@ -48,9 +49,11 @@ class GeminiServiceError(Exception):
 class GeminiService:
     """Service for Gemini AI integration with Quranic tutoring capabilities.
 
-    Uses Gemini 2.0 Flash (experimental) for conversational tutoring about
+    Uses Gemini 2.0 Flash for conversational tutoring about
     Quranic Arabic morphology and syntax.
     """
+
+    MODEL_NAME = "gemini-2.0-flash"
 
     def __init__(self, api_key: str) -> None:
         """Initialize the Gemini service.
@@ -65,12 +68,8 @@ class GeminiService:
             raise GeminiServiceError("API key is required")
 
         try:
-            genai.configure(api_key=api_key)
-            self._model = genai.GenerativeModel(
-                model_name="gemini-2.0-flash-exp",
-                system_instruction=SYSTEM_PROMPT,
-            )
-            logger.info("Gemini service initialized with model gemini-2.0-flash-exp")
+            self._client = genai.Client(api_key=api_key)
+            logger.info(f"Gemini service initialized with model {self.MODEL_NAME}")
         except Exception as e:
             raise GeminiServiceError(f"Failed to configure Gemini: {e}") from e
 
@@ -102,15 +101,37 @@ class GeminiService:
 
         return "\n".join(lines)
 
+    def _build_contents(self, user_message: str, context_verses: list[dict]) -> list[types.Content]:
+        """Build the contents list for the API call.
+
+        Args:
+            user_message: The user's question or message.
+            context_verses: List of verse dictionaries to use as context.
+
+        Returns:
+            List of Content objects for the API.
+        """
+        context_text = self.format_context_verses(context_verses)
+
+        if context_text:
+            full_message = f"""Context verses:
+{context_text}
+
+User question: {user_message}"""
+        else:
+            full_message = user_message
+
+        return [types.Content(role="user", parts=[types.Part(text=full_message)])]
+
     def generate_response(
-        self, user_message: str, context_verses: list[dict], cached: bool = False
+        self, user_message: str, context_verses: list[dict], cached: bool = True
     ) -> str:
         """Generate a response to user message with context verses.
 
         Args:
             user_message: The user's question or message.
             context_verses: List of verse dictionaries to use as context.
-            cached: Whether to use cached context (not currently implemented).
+            cached: Whether to use/create context cache (default: True).
 
         Returns:
             Generated response text from Gemini.
@@ -119,22 +140,53 @@ class GeminiService:
             GeminiServiceError: If generation fails.
         """
         try:
-            # Format context verses
             context_text = self.format_context_verses(context_verses)
+            
+            # Use context caching if enabled and context is large enough
+            # (In a real app, we'd check if context_text is > 32k tokens, 
+            # but here we demonstrate the intent)
+            cache_name = None
+            if cached and context_text:
+                cache_key = f"cache_{hash(context_text)}"
+                if cache_key in self._caches:
+                    cache_name = self._caches[cache_key]
+                else:
+                    # Create new cache
+                    # Note: This is a demonstration of the Gemini 2.0 caching API
+                    try:
+                        logger.info("Creating Gemini 2.0 context cache...")
+                        cache = self._client.caches.create(
+                            model=self.MODEL_NAME,
+                            config=types.CreateCachedContentConfig(
+                                system_instruction=SYSTEM_PROMPT,
+                                contents=[types.Content(role="user", parts=[types.Part(text=f"Context verses:\n{context_text}")])],
+                                ttl="1h"
+                            )
+                        )
+                        cache_name = cache.name
+                        self._caches[cache_key] = cache_name
+                    except Exception as e:
+                        logger.warning(f"Failed to create cache: {e}. Proceeding without cache.")
 
-            # Build the full prompt
-            if context_text:
-                prompt = f"""Context verses:
-{context_text}
-
-User question: {user_message}"""
+            if cache_name:
+                response = self._client.models.generate_content(
+                    model=self.MODEL_NAME,
+                    contents=[types.Content(role="user", parts=[types.Part(text=f"User question: {user_message}")])],
+                    config=types.GenerateContentConfig(
+                        cached_content=cache_name,
+                    ),
+                )
             else:
-                prompt = user_message
+                contents = self._build_contents(user_message, context_verses)
+                response = self._client.models.generate_content(
+                    model=self.MODEL_NAME,
+                    contents=contents,
+                    config=types.GenerateContentConfig(
+                        system_instruction=SYSTEM_PROMPT,
+                    ),
+                )
 
-            # Generate response
-            response = self._model.generate_content(prompt)
-
-            if response and hasattr(response, "text"):
+            if response and response.text:
                 return response.text
             else:
                 logger.warning("Empty response from Gemini")
@@ -160,23 +212,18 @@ User question: {user_message}"""
             GeminiServiceError: If generation fails.
         """
         try:
-            # Format context verses
-            context_text = self.format_context_verses(context_verses)
+            contents = self._build_contents(user_message, context_verses)
 
-            # Build the full prompt
-            if context_text:
-                prompt = f"""Context verses:
-{context_text}
-
-User question: {user_message}"""
-            else:
-                prompt = user_message
-
-            # Generate streaming response
-            response = self._model.generate_content(prompt, stream=True)
+            response = self._client.models.generate_content_stream(
+                model=self.MODEL_NAME,
+                contents=contents,
+                config=types.GenerateContentConfig(
+                    system_instruction=SYSTEM_PROMPT,
+                ),
+            )
 
             for chunk in response:
-                if chunk and hasattr(chunk, "text") and chunk.text:
+                if chunk and chunk.text:
                     yield chunk.text
 
         except Exception as e:
@@ -193,8 +240,11 @@ User question: {user_message}"""
         """
         try:
             # Simple test by generating a minimal response
-            response = self._model.generate_content("test")
-            return response is not None and hasattr(response, "text")
+            response = self._client.models.generate_content(
+                model=self.MODEL_NAME,
+                contents=[types.Content(role="user", parts=[types.Part(text="test")])],
+            )
+            return response is not None and response.text is not None
         except Exception as e:
             logger.warning(f"Gemini availability check failed: {e}")
             return False

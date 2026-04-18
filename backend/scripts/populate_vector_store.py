@@ -7,9 +7,10 @@ sys.path.insert(0, ".")
 from app.config import settings
 from app.services.corpus_parser import CorpusParser
 from app.services.vector_store import VectorStore
+from camel_tools.utils.charmap import CharMapper
 
 
-def populate_vector_store(limit: int = 20):
+def populate_vector_store(limit: int = 1000):
     """Populate vector store with verses from the corpus.
 
     Args:
@@ -43,14 +44,25 @@ def populate_vector_store(limit: int = 20):
 
     print(f"Adding {len(verses_to_add)} verses to vector store...")
 
+    # Initialize Arabic transliterator
+    mapper = CharMapper.builtin_mapper("bw2ar")
+
     # Add to vector store one by one
     vector_store = VectorStore()
+    
+    # Reset existing data
+    print("Resetting existing vector store data...")
+    vector_store.reset()
+
     for i, verse in enumerate(verses_to_add):
         try:
+            # Convert Buckwalter to Arabic script
+            arabic_text = mapper.map_string(verse["arabic_text"])
+            
             vector_store.add_verse(
                 chapter=verse["chapter"],
                 verse=verse["verse"],
-                arabic_text=verse["arabic_text"],
+                arabic_text=arabic_text,
                 translation=verse.get("translation"),
             )
             if (i + 1) % 5 == 0:
@@ -63,4 +75,4 @@ def populate_vector_store(limit: int = 20):
 
 
 if __name__ == "__main__":
-    populate_vector_store(limit=20)
+    populate_vector_store(limit=1000)

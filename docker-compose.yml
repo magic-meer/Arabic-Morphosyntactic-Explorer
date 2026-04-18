@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/chroma_data:/app/chroma_data
+      - ./dataset:/dataset
+    env_file:
+      - ./backend/.env
+    restart: unless-stopped
+
+  # Note: Frontend (Expo) is typically run separately during development
+  # but can be served via Nginx if building for production.

@@ -1,112 +1,52 @@
-// Arabic Morphosyntactic Explorer - API Service for Backend Communication
+import axios from 'axios';
+import { MorphologyResponse } from '@/types/morphology';
 
-import axios, { type AxiosInstance } from 'axios';
-import type {
-  Verse,
-  MorphologyResponse,
-  ChatRequest,
-  ChatResponse,
-  VerseSearchRequest,
-  SearchResult,
-} from '@/types';
-import { useAppSettings } from '@/context/AppContext';
-
-// ============================================================================
-// API Service Class
-// ============================================================================
-
-class ApiService {
-  private client: AxiosInstance;
-
-  constructor(baseUrl: string) {
-    this.client = axios.create({
-      baseURL: baseUrl,
-      timeout: 30000,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-  }
-
-  setBaseUrl(url: string): void {
-    this.client.defaults.baseURL = url;
-  }
-
-  // Health check
-  async healthCheck(): Promise<{ status: string; version: string }> {
-    const response = await this.client.get('/api/v1/health');
-    return response.data;
-  }
-
-  // Get verse
-  async getVerse(chapter: number, verse: number): Promise<Verse> {
-    const response = await this.client.get(`/api/v1/verses/${chapter}/${verse}`);
-    return response.data;
-  }
-
-  // Get chapter verses
-  async getChapterVerses(
-    chapter: number,
-    limit?: number,
-    offset?: number
-  ): Promise<unknown> {
-    const params = new URLSearchParams();
-    if (limit) params.append('limit', limit.toString());
-    if (offset) params.append('offset', offset.toString());
-    const response = await this.client.get(`/api/v1/verses/${chapter}?${params}`);
-    return response.data;
-  }
-
-  // Search verses
-  async searchVerses(request: VerseSearchRequest): Promise<SearchResult[]> {
-    const response = await this.client.post('/api/v1/verses/search', request);
-    return response.data.results;
-  }
-
-  // Get morphology
-  async getMorphology(
-    chapter: number,
-    verse: number
-  ): Promise<MorphologyResponse> {
-    const response = await this.client.get(
-      `/api/v1/morphology/${chapter}/${verse}`
-    );
-    return response.data;
-  }
-
-  // Analyze text
-  async analyzeText(text: string): Promise<unknown> {
-    const response = await this.client.post('/api/v1/morphology/analyze', {
-      text,
-    });
-    return response.data;
-  }
-
-  // Chat
-  async chat(request: ChatRequest): Promise<ChatResponse> {
-    const response = await this.client.post('/api/v1/chat', request);
-    return response.data;
-  }
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
 }
 
-// ============================================================================
-// Singleton API Instance (configured with settings)
-// ============================================================================
-
-let apiService: ApiService | null = null;
-
-export function useApi(): ApiService {
-  const { settings } = useAppSettings();
-
-  if (
-    !apiService ||
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (apiService as any).client.defaults.baseURL !== settings.apiBaseUrl
-  ) {
-    apiService = new ApiService(settings.apiBaseUrl);
-  }
-
-  return apiService;
+export interface ChatResponse {
+  response: string;
+  context_used: boolean;
 }
 
-export default ApiService;
+// Replace with your local machine's IP address if testing on a physical device
+const BASE_URL = 'http://localhost:8000/api/v1';
+
+export const apiClient = axios.create({
+  baseURL: BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+export const analyzeVerse = async (text: string): Promise<MorphologyResponse> => {
+  try {
+    const response = await apiClient.post('/morphology/analyze', { text });
+    return response.data;
+  } catch (error) {
+    console.error('Morphology analysis failed', error);
+    throw error;
+  }
+};
+
+export const sendChatMessage = async (
+  message: string, 
+  history: ChatMessage[], 
+  verseContext?: string
+): Promise<ChatResponse> => {
+  try {
+    const response = await apiClient.post('/chat', {
+      message,
+      history,
+      verse_context: verseContext
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Chat request failed', error);
+    throw error;
+  }
+};
+
+export default apiClient;

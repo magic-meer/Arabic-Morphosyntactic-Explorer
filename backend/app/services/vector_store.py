@@ -362,3 +362,57 @@ class VectorStore:
 
         except Exception as e:
             logger.error(f"Failed to reset vector store: {e}")
+
+    def ensure_populated(self, limit: int = 1000) -> None:
+        """Check if vector store is empty and populate it if necessary.
+
+        Args:
+            limit: Number of verses to populate if empty.
+        """
+        try:
+            count = self.get_verse_count()
+            if count > 0:
+                logger.info(f"Vector store already contains {count} verses. Skipping population.")
+                return
+
+            logger.info("Vector store is empty. Starting automatic population...")
+            
+            # Import dependencies here to avoid circular imports
+            from app.services.corpus_parser import CorpusParser
+            from camel_tools.utils.charmap import CharMapper
+
+            corpus = CorpusParser()
+            verses_data = corpus.load_verses()
+            
+            verses_to_add = []
+            for chapter_num, chapter_verses in verses_data.items():
+                for verse_num, words in chapter_verses.items():
+                    text = " ".join([w.form for w in words])
+                    verses_to_add.append({
+                        "chapter": chapter_num,
+                        "verse": verse_num,
+                        "arabic_text": text,
+                    })
+                    if limit and len(verses_to_add) >= limit:
+                        break
+                if limit and len(verses_to_add) >= limit:
+                    break
+
+            # Initialize Arabic transliterator
+            mapper = CharMapper.builtin_mapper("bw2ar")
+            
+            # Add to vector store
+            for i, verse in enumerate(verses_to_add):
+                arabic_text = mapper.map_string(verse["arabic_text"])
+                self.add_verse(
+                    chapter=verse["chapter"],
+                    verse=verse["verse"],
+                    arabic_text=arabic_text,
+                )
+                if (i + 1) % 100 == 0:
+                    logger.info(f"Populated {i + 1} verses...")
+
+            logger.info(f"Automatic population complete. Total verses: {self.get_verse_count()}")
+
+        except Exception as e:
+            logger.error(f"Failed to ensure vector store is populated: {e}")

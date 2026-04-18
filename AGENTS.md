@@ -77,7 +77,7 @@ cd backend && mypy app/
 
 ```bash
 # Install dependencies
-cd frontend && npm install
+cd frontend && pnpm install
 
 # Run development server
 cd frontend && npx expo start
@@ -89,7 +89,7 @@ cd frontend && npx expo run:android
 cd frontend && npx expo run:ios
 
 # Run tests
-cd frontend && npm test
+cd frontend && pnpm test
 
 # Linting
 cd frontend && npx eslint src/

@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     """Application settings."""
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file="../.env",
         env_file_encoding="utf-8",
     )
 
@@ -29,9 +29,9 @@ class Settings(BaseSettings):
         description="Path for ChromaDB data storage",
     )
 
-    # Corpus path
+    # Corpus path - relative to backend directory
     corpus_path: Path = Field(
-        default=Path("../../../dataset/extracted/quranic-corpus-morphology-0.4.txt"),
+        default=Path("dataset/extracted/quranic-corpus-morphology-0.4.txt"),
         description="Path to Quranic corpus file",
     )
 

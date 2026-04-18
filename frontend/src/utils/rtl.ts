@@ -1,37 +1,18 @@
-// Arabic Morphosyntactic Explorer - RTL Utilities
-
 import { I18nManager } from 'react-native';
-import i18n from '../i18n';
+import * as Updates from 'expo-updates';
 
-/**
- * Check if current language is RTL (Arabic)
- */
-export function isRTL(): boolean {
-  return i18n.language === 'ar';
-}
+export const isRTL = I18nManager.isRTL;
 
-/**
- * Set app direction (RTL/LTR)
- */
-export function setDirection(): void {
-  const isArabic = i18n.language === 'ar';
-
-  if (I18nManager.isRTL !== isArabic) {
-    I18nManager.allowRTL(isArabic);
-    I18nManager.forceRTL(isArabic);
+export const setRTL = async (shouldBeRTL: boolean) => {
+  if (I18nManager.isRTL !== shouldBeRTL) {
+    I18nManager.allowRTL(shouldBeRTL);
+    I18nManager.forceRTL(shouldBeRTL);
+    
+    // Restarting the app to apply changes
+    try {
+      await Updates.reloadAsync();
+    } catch (error) {
+      console.error('Failed to reload app for RTL changes', error);
+    }
   }
-}
-
-/**
- * Get text alignment based on language
- */
-export function getTextAlignment(): 'left' | 'right' {
-  return isRTL() ? 'right' : 'left';
-}
-
-/**
- * Get flex direction based on language
- */
-export function getFlexDirection(): 'row' | 'row-reverse' {
-  return isRTL() ? 'row-reverse' : 'row';
-}
+};

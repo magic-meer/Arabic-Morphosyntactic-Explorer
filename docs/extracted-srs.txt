@@ -1,0 +1,57 @@
+         Software Requirements Specification (SRS)
+                             Project: AI Arabic Morphosyntactic Explorer
+                                     Fellowship Project: 30-Day Development Plan
+
+Background
+    Purpose: To bridge the gap between complex Classical Arabic (CA) linguistics and modern learners by providing a
+real-time, AI-driven pedagogical tutor. The system serves as a ”Linguistic Co-pilot” for exploring the Quranic corpus.
+Problem Statement: Classical Arabic is morphologically rich, where a single word-form can contain an entire sentence’s
+worth of information. Existing tools like the Quranic Arabic Corpus are expert-oriented but static, while general AI models
+often ”hallucinate” grammatical roots or rules due to a lack of grounded linguistic metadata.
+
+Objectives
+   • High-Fidelity Reasoning: Leverage LLM reasoning to explain complex I’rab (syntax) and Sarf (morphology).
+   • Grounded Accuracy: Integrate expert-verified datasets into a Retrieval-Augmented Generation (RAG) pipeline.
+   • Professional Deployment: Demonstrate a containerized (Docker) backend and a mirrored (RTL) mobile UI.
+   • Cost Efficiency: Utilize Gemini 2.0 context caching to reduce API operational costs by 75%.
+
+Project Scope
+    Objectives: The system performs word-level morphological analysis (root extraction, POS tagging, segmentation)
+and provides AI-assisted syntactic (I’rab) explanations through a RAG-based interactive interface grounded in verified
+Quranic datasets.
+    Deliverables: A mobile application (React Native with RTL support), a FastAPI backend integrating NLP and
+RAG, and a vector database containing structured Quranic linguistic data.
+    Boundaries / Exclusions: The system is limited to Quranic Classical Arabic and does not support full translation,
+non-Quranic text processing, or offline AI functionality.
+    Constraints: The project is constrained by a 30-day timeline, reliance on external APIs (Gemini), limited computa-
+tional resources, and dataset coverage.
+
+Proposed Solution
+   The system employs a multi-layered AI stack:
+   • Reasoning Layer: Gemini 2.0 Flash API for pedagogical logic and conversational tutoring.
+   • NLP Layer: CAMeL Tools (NYU Abu Dhabi) for precise morphological parsing and root identification.
+   • Knowledge Layer: ChromaDB (Vector Database) storing Quranic segments with extensive metadata tags.
+   • Interface Layer: React Native (Expo) featuring Right-to-Left (RTL) layout support for Arabic script.
+
+Comparison with Existing Projects
+   —l—X—l—
+   Project Key Feature / Limitation Reference Link
+   Quranic Arabic Corpus The gold standard for verified data; lacks interactivity and AI reasoning. corpus.quran.com
+   Tanzil Project Focuses on verified Unicode text; lacks deep morphological metadata. tanzil.net
+   QAMAR New research-grade corpus; focuses on verification rather than mobile education. QAMAR (2026)
+   A-AME (This Project) Interactive tutoring + RAG grounding + Mobile-first mirrored UI. Current Project
+
+
+Datasets
+   • Quran-MD Dataset: Multimodal Quranic dataset with word-level audio and linguistic alignment. [Link]
+   • The Quranic Arabic Corpus (QAC): Morphological word-by-word data and tags. [Link]
+   • MASAQ Dataset: High-quality morphosyntactically annotated Quran (2025). [Link]
+
+Resources
+   • NLP Library: CAMeL Tools Repository. [GitHub]
+   • Backend Framework: FastAPI Documentation. [Link]
+   • AI API: Google AI Studio (Gemini 2.0). [Link]
+
+
+                                                            1
+

@@ -180,8 +180,14 @@ class CorpusParser:
         # Resolve path if relative
         corpus_path = self._corpus_path
         if not corpus_path.is_absolute():
-            # Path is relative to the backend directory
-            corpus_path = Path(__file__).parent.parent.parent / corpus_path
+            # Try resolving relative to CWD (root of the app in Docker)
+            cwd_path = Path.cwd() / corpus_path
+            if cwd_path.exists():
+                corpus_path = cwd_path
+            else:
+                # Fallback: Path is relative to the backend directory (standard dev setup)
+                parent_path = Path(__file__).parent.parent.parent
+                corpus_path = (parent_path / corpus_path).resolve()
 
         if not corpus_path.exists():
             logger.error(f"Corpus file not found: {corpus_path}")
