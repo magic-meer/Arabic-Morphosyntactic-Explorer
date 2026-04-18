@@ -11,23 +11,28 @@ import { useLocalSearchParams, Stack } from 'expo-router';
 import { Word } from '@/components/Word';
 import { ChatTutor } from '@/components/ChatTutor';
 import { analyzeVerse } from '@/services/api';
-import { MorphologyAnalysis, MorphologyWord } from '@/types/morphology';
+import { MorphologyWord } from '@/types/morphology';
+import { theme } from '@/constants/theme';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export default function VerseDetailScreen() {
   const { id, text, reference } = useLocalSearchParams<{ id: string, text: string, reference: string }>();
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
-  const [analysis, setAnalysis] = useState<MorphologyAnalysis | null>(null);
+  const [analysis, setAnalysis] = useState<MorphologyWord | null>(null);
   const [loading, setLoading] = useState(false);
-  const [verseAnalysis, setVerseAnalysis] = useState<MorphologyAnalysis[]>([]);
+  const [verseAnalysis, setVerseAnalysis] = useState<MorphologyWord[]>([]);
 
   // Split verse into words
   const words = text ? text.split(' ') : [];
 
   const handleWordPress = (wordText: string) => {
     setSelectedWord(wordText);
-    const found = verseAnalysis.find(a => a.word === wordText);
+    // Remove punctuation for matching
+    const normalizedTarget = wordText.replace(/[﴿﴾\s]/g, '');
+    const found = verseAnalysis.find(a => 
+      a.form.replace(/[﴿﴾\s]/g, '') === normalizedTarget
+    );
     setAnalysis(found || null);
   };
 
@@ -50,7 +55,12 @@ export default function VerseDetailScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: reference || 'Verse Detail' }} />
+      <Stack.Screen options={{ 
+        title: reference || 'Verse Detail',
+        headerStyle: { backgroundColor: theme.colors.surface },
+        headerTintColor: theme.colors.primary,
+        headerTitleStyle: { fontFamily: theme.typography.fontFamilies.englishBold }
+      }} />
       
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.verseContainer}>
@@ -66,17 +76,17 @@ export default function VerseDetailScreen() {
           </View>
         </View>
 
-        {loading && <ActivityIndicator color="#ffd33d" style={styles.loader} />}
+        {loading && <ActivityIndicator color={theme.colors.primary} style={styles.loader} />}
 
         {selectedWord && (
           <View style={styles.analysisPanel}>
             <Text style={styles.analysisTitle}>Analysis / تحليل: {selectedWord}</Text>
             {analysis ? (
               <View style={styles.detailsContainer}>
-                <DetailRow label="Root / الجذر" value={analysis.top_analysis.root} isArabic />
-                <DetailRow label="Lemma / اللمة" value={analysis.top_analysis.lemma} isArabic />
-                <DetailRow label="POS Tag / نوع الكلمة" value={analysis.top_analysis.pos} />
-                <DetailRow label="Grammar / الإعراب" value={analysis.top_analysis.tag} />
+                <DetailRow label="Root / الجذر" value={analysis.features.root || ''} isArabic />
+                <DetailRow label="Lemma / اللمة" value={analysis.features.lemma || ''} isArabic />
+                <DetailRow label="POS Tag / نوع الكلمة" value={analysis.features.pos || analysis.tag} />
+                <DetailRow label="Grammar / الإعراب" value={analysis.tag} />
               </View>
             ) : (
               <Text style={styles.noAnalysisText}>
@@ -87,8 +97,8 @@ export default function VerseDetailScreen() {
         )}
 
         <ChatTutor 
-          verseContext={text} 
-          reference={reference} 
+          verseContext={text || ''} 
+          reference={reference || ''} 
         />
       </ScrollView>
     </View>
@@ -105,20 +115,25 @@ const DetailRow = ({ label, value, isArabic }: { label: string, value: string, i
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: theme.colors.background,
   },
   scrollContent: {
-    padding: 20,
+    padding: theme.spacing.lg,
   },
   verseContainer: {
-    backgroundColor: '#1f1f1f',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 20,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.lg,
+    marginBottom: theme.spacing.lg,
     minHeight: 120,
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#333',
+    borderColor: theme.colors.surfaceBorder,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   wordsWrapper: {
     flexDirection: 'row-reverse',
@@ -127,51 +142,51 @@ const styles = StyleSheet.create({
   },
   analysisPanel: {
     backgroundColor: 'rgba(31, 31, 31, 0.8)',
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.lg,
     borderWidth: 1,
     borderColor: 'rgba(255, 211, 61, 0.2)',
     backdropFilter: 'blur(10px)',
   },
   analysisTitle: {
-    color: '#ffd33d',
-    fontSize: 18,
-    fontFamily: 'Inter_700Bold',
-    marginBottom: 16,
+    color: theme.colors.primary,
+    fontSize: theme.typography.sizes.lg,
+    fontFamily: theme.typography.fontFamilies.englishBold,
+    marginBottom: theme.spacing.md,
     textAlign: 'center',
   },
   detailsContainer: {
-    gap: 12,
+    gap: theme.spacing.sm,
   },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: theme.spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: '#2a2a2a',
+    borderBottomColor: theme.colors.surfaceBorder,
   },
   detailLabel: {
-    color: '#999',
-    fontSize: 14,
-    fontFamily: 'Inter_400Regular',
+    color: theme.colors.textSecondary,
+    fontSize: theme.typography.sizes.sm,
+    fontFamily: theme.typography.fontFamilies.english,
   },
   detailValue: {
-    color: '#fff',
-    fontSize: 16,
-    fontFamily: 'Inter_700Bold',
+    color: theme.colors.text,
+    fontSize: theme.typography.sizes.md,
+    fontFamily: theme.typography.fontFamilies.englishBold,
   },
   arabicValue: {
-    fontFamily: 'Amiri_700Bold',
-    fontSize: 20,
-    color: '#ffd33d',
+    fontFamily: theme.typography.fontFamilies.arabicBold,
+    fontSize: theme.typography.sizes.lg,
+    color: theme.colors.primary,
   },
   loader: {
-    marginVertical: 20,
+    marginVertical: theme.spacing.lg,
   },
   noAnalysisText: {
-    color: '#666',
+    color: theme.colors.textSecondary,
     textAlign: 'center',
-    fontFamily: 'Inter_400Regular',
+    fontFamily: theme.typography.fontFamilies.english,
   },
 });

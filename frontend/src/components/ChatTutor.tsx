@@ -35,7 +35,7 @@ export const ChatTutor: React.FC<ChatTutorProps> = ({ verseContext, reference })
     setLoading(true);
 
     try {
-      const response = await sendChatMessage(input, messages, verseContext);
+      const response = await sendChatMessage(input, newMessages, verseContext);
       const assistantMsg: ChatMessage = { role: 'assistant', content: response.response };
       setMessages([...newMessages, assistantMsg]);
     } catch (error) {
@@ -76,14 +76,21 @@ export const ChatTutor: React.FC<ChatTutorProps> = ({ verseContext, reference })
         <Text style={styles.headerTitle}>AI Pedagogical Tutor / المعلم الذكي</Text>
       </View>
       
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        keyExtractor={(_, index) => index.toString()}
-        renderItem={renderMessage}
-        contentContainerStyle={styles.messageList}
-        onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
-      />
+      <View style={styles.messageList}>
+        {messages.map((item, index) => (
+          <View key={index.toString()} style={[
+            styles.messageContainer, 
+            item.role === 'user' ? styles.userMessage : styles.assistantMessage
+          ]}>
+            <Text style={[
+              styles.messageText,
+              item.role === 'user' ? styles.userText : styles.assistantText
+            ]}>
+              {item.content}
+            </Text>
+          </View>
+        ))}
+      </View>
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -124,7 +131,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     borderWidth: 1,
     borderColor: '#333',
-    maxHeight: 400,
   },
   header: {
     flexDirection: 'row',

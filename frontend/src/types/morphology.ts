@@ -1,20 +1,28 @@
-export interface MorphologyWord {
-  word: string;
-  root: string;
-  lemma: string;
-  pos: string;
-  features: Record<string, string>;
-  tag: string;
+export interface MorphologyFeatures {
+  pos?: string;
+  lemma?: string;
+  root?: string;
+  gender?: string;
+  number?: string;
+  case?: string;
+  mood?: string;
+  voice?: string;
+  aspect?: string;
+  person?: string;
+  pronominal_suffix?: string;
 }
 
-export interface MorphologyAnalysis {
-  word: string;
-  analysis_count: number;
-  top_analysis: MorphologyWord;
-  all_analyses: MorphologyWord[];
+export interface MorphologyWord {
+  form: string;
+  tag: string;
+  features: MorphologyFeatures;
+  original_features?: Record<string, string>;
 }
 
 export interface MorphologyResponse {
-  verse_id?: number;
-  words: MorphologyAnalysis[];
+  chapter?: number;
+  verse?: number;
+  text?: string;
+  words: MorphologyWord[];
+  tokens_count?: number;
 }

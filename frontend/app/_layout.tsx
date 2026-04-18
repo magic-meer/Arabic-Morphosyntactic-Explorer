@@ -59,14 +59,8 @@ export default function RootLayout() {
       }}
     >
       <Stack.Screen 
-        name="index" 
-        options={{ 
-          title: 'Explorer | المستكشف',
-          headerTitleStyle: {
-            fontFamily: 'Amiri_700Bold',
-            fontSize: 22,
-          }
-        }} 
+        name="(tabs)" 
+        options={{ headerShown: false }} 
       />
     </Stack>
   );

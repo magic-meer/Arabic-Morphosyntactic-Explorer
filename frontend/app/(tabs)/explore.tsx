@@ -1,17 +1,9 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  StyleSheet, 
-  FlatList, 
-  TouchableOpacity,
-  ActivityIndicator,
-  Keyboard
-} from 'react-native';
+import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Keyboard } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter, Stack } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { apiClient } from '@/services/api';
+import { theme } from '@/constants/theme';
 
 interface Verse {
   chapter: number;
@@ -21,7 +13,7 @@ interface Verse {
   similarity: number;
 }
 
-export default function SearchScreen() {
+export default function ExploreScreen() {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Verse[]>([]);
@@ -51,7 +43,7 @@ export default function SearchScreen() {
     <TouchableOpacity 
       style={styles.verseCard}
       onPress={() => router.push({
-        pathname: "/verse/[id]",
+        pathname: "/verse/[id]" as any,
         params: { 
           id: `${item.chapter}:${item.verse}`,
           text: item.arabic_text, 
@@ -61,7 +53,7 @@ export default function SearchScreen() {
     >
       <View style={styles.verseHeader}>
         <Text style={styles.verseReference}>
-          {item.chapter}:{item.verse}
+          Surah {item.chapter}, Ayah {item.verse}
         </Text>
       </View>
       <Text style={styles.arabicText}>{item.arabic_text}</Text>
@@ -70,24 +62,13 @@ export default function SearchScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: 'Explorer / مستكشف' }} />
-      
-      <View style={styles.header}>
-        <Text style={styles.title}>
-          Arabic Morphosyntactic Explorer
-        </Text>
-        <Text style={styles.subtitle}>
-          مستكشف الصرف والنحو العربي
-        </Text>
-      </View>
-
       <View style={styles.searchContainer}>
         <View style={styles.inputWrapper}>
-          <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
+          <Ionicons name="search" size={20} color={theme.colors.textSecondary} style={styles.searchIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Search verse or Surah:Ayah / ابحث عن آية"
-            placeholderTextColor="#666"
+            placeholder="Search Quran..."
+            placeholderTextColor={theme.colors.textSecondary}
             value={query}
             onChangeText={setQuery}
             onSubmitEditing={handleSearch}
@@ -95,15 +76,15 @@ export default function SearchScreen() {
         </View>
         <TouchableOpacity style={styles.searchButton} onPress={handleSearch} disabled={loading}>
           {loading ? (
-            <ActivityIndicator color="#000" />
+            <ActivityIndicator color={theme.colors.black} />
           ) : (
-            <Text style={styles.searchButtonText}>Search / بحث</Text>
+            <Ionicons name="arrow-forward" size={24} color={theme.colors.black} />
           )}
         </TouchableOpacity>
       </View>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#ffd33d" style={styles.loader} />
+        <ActivityIndicator size="large" color={theme.colors.primary} style={styles.loader} />
       ) : (
         <FlatList
           data={results}
@@ -112,8 +93,13 @@ export default function SearchScreen() {
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
             query && !loading ? (
-              <Text style={styles.emptyText}>No results found</Text>
-            ) : null
+              <Text style={styles.emptyText}>No verses found</Text>
+            ) : (
+               <View style={styles.emptyContainer}>
+                  <Ionicons name="book-outline" size={48} color={theme.colors.surfaceBorder} />
+                  <Text style={styles.emptyText}>Search for a verse or Surah:Ayah</Text>
+               </View>
+            )
           }
         />
       )}
@@ -124,102 +110,76 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
-  },
-  header: {
-    paddingTop: 40,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-  },
-  title: {
-    color: '#fff',
-    fontSize: 24,
-    fontFamily: 'Inter_700Bold',
-    textAlign: 'center',
-  },
-  subtitle: {
-    color: '#ffd33d',
-    fontSize: 18,
-    fontFamily: 'Amiri_400Regular',
-    marginTop: 8,
-    textAlign: 'center',
+    backgroundColor: theme.colors.background,
   },
   searchContainer: {
-    padding: 20,
-    gap: 12,
+    padding: theme.spacing.lg,
+    flexDirection: 'row',
+    gap: theme.spacing.sm,
   },
   inputWrapper: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1f1f1f',
-    borderRadius: 12,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.md,
     borderWidth: 1,
-    borderColor: '#333',
-    paddingHorizontal: 12,
+    borderColor: theme.colors.surfaceBorder,
+    paddingHorizontal: theme.spacing.md,
   },
   searchIcon: {
-    marginRight: 8,
+    marginRight: theme.spacing.sm,
   },
   input: {
     flex: 1,
     height: 50,
-    color: '#fff',
-    fontSize: 16,
-    fontFamily: 'Inter_400Regular',
+    color: theme.colors.text,
+    fontFamily: theme.typography.fontFamilies.english,
   },
   searchButton: {
-    backgroundColor: '#ffd33d',
-    height: 50,
-    borderRadius: 12,
+    backgroundColor: theme.colors.primary,
+    width: 50,
+    borderRadius: theme.borderRadius.md,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#ffd33d',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  searchButtonText: {
-    color: '#000',
-    fontSize: 16,
-    fontFamily: 'Inter_700Bold',
   },
   listContent: {
-    padding: 16,
+    padding: theme.spacing.lg,
   },
   verseCard: {
-    backgroundColor: '#1f1f1f',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.lg,
+    marginBottom: theme.spacing.sm,
     borderWidth: 1,
-    borderColor: '#333',
+    borderColor: theme.colors.surfaceBorder,
   },
   verseHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
+    marginBottom: theme.spacing.sm,
   },
   verseReference: {
-    color: '#ffd33d',
-    fontFamily: 'Inter_700Bold',
-    fontSize: 14,
+    color: theme.colors.primary,
+    fontFamily: theme.typography.fontFamilies.englishBold,
+    fontSize: theme.typography.sizes.sm,
   },
   arabicText: {
-    color: '#fff',
-    fontSize: 22,
-    fontFamily: 'Amiri_400Regular',
-    textAlign: 'right',
+    color: theme.colors.text,
+    fontSize: theme.typography.sizes.xl,
+    fontFamily: theme.typography.fontFamilies.arabic,
+    textAlign: 'center',
     lineHeight: 36,
   },
   loader: {
-    marginTop: 40,
+    marginTop: theme.spacing.xxl,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    marginTop: theme.spacing.xxl,
+    gap: theme.spacing.md,
   },
   emptyText: {
-    color: '#666',
-    textAlign: 'center',
-    marginTop: 40,
-    fontFamily: 'Inter_400Regular',
+    color: theme.colors.textSecondary,
+    fontFamily: theme.typography.fontFamilies.english,
+    fontSize: theme.typography.sizes.md,
   },
 });
