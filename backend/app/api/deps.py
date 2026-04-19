@@ -37,3 +37,15 @@ def get_morphology_service() -> MorphologyService:
     from app.services.morphology import morphology_service
 
     return morphology_service
+
+@lru_cache
+def get_quran_dataset():
+    """Get singleton QuranDataset instance."""
+    from app.services.quran_dataset import QuranDataset
+    return QuranDataset.get_instance()
+
+@lru_cache
+def get_lexicon_service():
+    """Get singleton LexiconService instance."""
+    from app.services.lexicon import LexiconService
+    return LexiconService.get_instance()

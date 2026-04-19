@@ -53,7 +53,7 @@ class GeminiService:
     Quranic Arabic morphology and syntax.
     """
 
-    MODEL_NAME = "gemini-2.0-flash"
+    MODEL_NAME = "gemini-3.1-flash-lite-preview"
 
     def __init__(self, api_key: str) -> None:
         """Initialize the Gemini service.
@@ -69,6 +69,7 @@ class GeminiService:
 
         try:
             self._client = genai.Client(api_key=api_key)
+            self._caches: dict[str, str] = {}
             logger.info(f"Gemini service initialized with model {self.MODEL_NAME}")
         except Exception as e:
             raise GeminiServiceError(f"Failed to configure Gemini: {e}") from e

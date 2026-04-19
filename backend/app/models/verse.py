@@ -30,6 +30,8 @@ class VerseResponse(BaseModel):
         default_factory=list, description="List of words in the verse"
     )
     verse_text: Optional[str] = Field(default=None, description="The Arabic verse text")
+    translation: Optional[str] = Field(default=None, description="The English translation")
+    transliteration: Optional[str] = Field(default=None, description="The transliterated verse text")
 
 
 class ChapterResponse(BaseModel):
@@ -50,6 +52,9 @@ class VerseSearchResult(BaseModel):
     arabic_text: str = Field(description="Arabic text of the verse")
     translation: Optional[str] = Field(
         default=None, description="English translation of the verse"
+    )
+    transliteration: Optional[str] = Field(
+        default=None, description="Transliterated text of the verse"
     )
     similarity: float = Field(description="Similarity score for the search query")
 

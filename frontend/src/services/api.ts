@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { MorphologyResponse } from '@/types/morphology';
+import { MorphologyResponse, VerseResponse } from '@/types/morphology';
 
 export interface ChatMessage {
   role: 'user' | 'assistant';
@@ -54,16 +54,35 @@ export const analyzeVerse = async (text: string): Promise<MorphologyResponse> =>
   }
 };
 
+export interface WordAnalysisResponse {
+  word: string;
+  analyses: Record<string, string>[];
+  ai_explanation: string;
+}
+
+export const analyzeWord = async (word: string): Promise<WordAnalysisResponse> => {
+  try {
+    const response = await apiClient.post<WordAnalysisResponse>('/morphology/analyze-word', { word });
+    return response.data;
+  } catch (error) {
+    console.error('Word analysis failed', error);
+    throw error;
+  }
+};
+
 export const sendChatMessage = async (
   message: string,
   history: ChatMessage[],
   verseContext?: string
 ): Promise<ChatResponse> => {
   try {
+    // If backend doesn't natively support message history arrays, we format the latest query
+    // Since the backend expects: message, context_verses, include_verses
+    // We optionally convert verseContext to the expected context_verses schema if provided.
+    // For now we just send the message to avoid 422 Payload Errors.
     const response = await apiClient.post('/chat', {
-      message,
-      history,
-      verse_context: verseContext
+      message: message,
+      context_verses: [] 
     });
     return response.data;
   } catch (error) {
@@ -71,5 +90,34 @@ export const sendChatMessage = async (
     throw error;
   }
 };
+
+export const getVerse = async (chapter: number, verse: number): Promise<VerseResponse> => {
+  try {
+    const response = await apiClient.get<VerseResponse>(`/verses/${chapter}/${verse}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to fetch verse ${chapter}:${verse}`, error);
+    throw error;
+  }
+};
+
+export const getChapterVerses = async (chapter: number, limit = 50, offset = 0): Promise<{
+  chapter: number;
+  verse_count: number;
+  verses: VerseResponse[];
+  limit: number;
+  offset: number;
+  has_more: boolean;
+}> => {
+  try {
+    const response = await apiClient.get(`/verses/${chapter}`, {
+      params: { limit, offset }
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to fetch chapter ${chapter} verses`, error);
+    throw error;
+  }
+}
 
 export default apiClient;

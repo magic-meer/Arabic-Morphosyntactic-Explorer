@@ -37,6 +37,7 @@ class SearchResult:
     verse: int
     arabic_text: str
     translation: Optional[str]
+    transliteration: Optional[str]
     similarity: float
 
 
@@ -135,6 +136,7 @@ class VectorStore:
         verse: int,
         arabic_text: str,
         translation: Optional[str] = None,
+        transliteration: Optional[str] = None,
     ) -> None:
         """Add a single verse to the vector store.
 
@@ -143,6 +145,7 @@ class VectorStore:
             verse: Verse number
             arabic_text: Arabic text of the verse
             translation: Optional English translation
+            transliteration: Optional transliterated Arabic text
         """
         if self._collection is None:
             logger.warning("Cannot add verse: collection not initialized")
@@ -168,6 +171,7 @@ class VectorStore:
                     "verse": verse,
                     "arabic_text": arabic_text,
                     "translation": translation or "",
+                    "transliteration": transliteration or "",
                 }
             ],
             documents=[arabic_text],
@@ -180,7 +184,7 @@ class VectorStore:
 
         Args:
             verses: List of dictionaries with keys:
-                   chapter, verse, arabic_text, translation
+                   chapter, verse, arabic_text, translation, transliteration
         """
         if self._collection is None:
             logger.warning("Cannot add verses: collection not initialized")
@@ -204,6 +208,7 @@ class VectorStore:
                     "verse": v["verse"],
                     "arabic_text": v["arabic_text"],
                     "translation": v.get("translation", "") or "",
+                    "transliteration": v.get("transliteration", "") or "",
                 }
             )
             documents.append(v["arabic_text"])
@@ -279,6 +284,7 @@ class VectorStore:
                             verse=metadata["verse"],
                             arabic_text=metadata["arabic_text"],
                             translation=metadata["translation"] or None,
+                            transliteration=metadata.get("transliteration") or None,
                             similarity=similarity,
                         )
                     )
@@ -326,6 +332,7 @@ class VectorStore:
                 verse=metadata["verse"],
                 arabic_text=metadata["arabic_text"],
                 translation=metadata["translation"] or None,
+                transliteration=metadata.get("transliteration") or None,
                 similarity=1.0,  # Exact match has similarity 1.0
             )
 
@@ -380,9 +387,13 @@ class VectorStore:
             # Import dependencies here to avoid circular imports
             from app.services.corpus_parser import CorpusParser
             from camel_tools.utils.charmap import CharMapper
+            from app.services.quran_dataset import QuranDataset
 
             corpus = CorpusParser()
             verses_data = corpus.load_verses()
+            
+            quran_db = QuranDataset.get_instance()
+            quran_db.load_verses_sync()
             
             verses_to_add = []
             for chapter_num, chapter_verses in verses_data.items():
@@ -403,11 +414,16 @@ class VectorStore:
             
             # Add to vector store
             for i, verse in enumerate(verses_to_add):
-                arabic_text = mapper.map_string(verse["arabic_text"])
+                transliteration = verse["arabic_text"]
+                arabic_text = quran_db.get_verse_text(verse["chapter"], verse["verse"])
+                translation = quran_db.get_translation(verse["chapter"], verse["verse"])
+
                 self.add_verse(
                     chapter=verse["chapter"],
                     verse=verse["verse"],
-                    arabic_text=arabic_text,
+                    arabic_text=arabic_text or mapper.map_string(transliteration),
+                    translation=translation,
+                    transliteration=transliteration
                 )
                 if (i + 1) % 100 == 0:
                     logger.info(f"Populated {i + 1} verses...")

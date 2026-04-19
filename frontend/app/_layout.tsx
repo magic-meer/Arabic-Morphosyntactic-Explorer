@@ -12,6 +12,8 @@ import {
   Inter_700Bold 
 } from '@expo-google-fonts/inter';
 
+import { PreferencesProvider } from '@/context/PreferencesContext';
+
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
 
@@ -24,12 +26,8 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    // Force RTL for Arabic support
-    if (!I18nManager.isRTL) {
-      I18nManager.allowRTL(true);
-      I18nManager.forceRTL(true);
-      // Note: In a real app, you might want to reload here if it's the first time
-    }
+    // Rely exclusively on stylistic text-align and row-reverse for Arabic content
+    // to prevent Expo Router navigation disruptions caused by native global RTL forcing.
   }, []);
 
   useEffect(() => {
@@ -43,25 +41,27 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: '#1a1a1a',
-        },
-        headerTintColor: '#fff',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-          fontFamily: 'Inter_700Bold',
-        },
-        contentStyle: {
-          backgroundColor: '#121212',
-        }
-      }}
-    >
-      <Stack.Screen 
-        name="(tabs)" 
-        options={{ headerShown: false }} 
-      />
-    </Stack>
+    <PreferencesProvider>
+      <Stack
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: '#1a1a1a',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontFamily: 'Inter_700Bold',
+          },
+          contentStyle: {
+            backgroundColor: '#121212',
+          }
+        }}
+      >
+        <Stack.Screen 
+          name="(tabs)" 
+          options={{ headerShown: false }} 
+        />
+      </Stack>
+    </PreferencesProvider>
   );
 }

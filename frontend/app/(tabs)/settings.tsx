@@ -1,42 +1,42 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
+import { usePreferences } from '@/context/PreferencesContext';
 
 export default function SettingsScreen() {
-  const [isDarkMode, setIsDarkMode] = useState(true);
-  const [isArabicUI, setIsArabicUI] = useState(false);
+  const { isDarkMode, toggleDarkMode, isArabicUI, toggleArabicUI } = usePreferences();
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView style={[styles.container, !isDarkMode && styles.containerLight]} contentContainerStyle={styles.content}>
       <View style={styles.header}>
-        <Text style={styles.title}>Settings</Text>
+        <Text style={[styles.title, !isDarkMode && styles.textLight]}>Settings</Text>
         <Text style={styles.subtitle}>الإعدادات</Text>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Preferences</Text>
         
-        <View style={styles.settingRow}>
+        <View style={[styles.settingRow, !isDarkMode && styles.surfaceLight]}>
           <View style={styles.settingInfo}>
-            <Ionicons name="moon" size={24} color={theme.colors.text} />
-            <Text style={styles.settingLabel}>Dark Mode</Text>
+            <Ionicons name={isDarkMode ? "moon" : "sunny"} size={24} color={isDarkMode ? theme.colors.text : '#000'} />
+            <Text style={[styles.settingLabel, !isDarkMode && styles.textLight]}>Dark Mode</Text>
           </View>
           <Switch
             value={isDarkMode}
-            onValueChange={setIsDarkMode}
+            onValueChange={toggleDarkMode}
             trackColor={{ false: '#767577', true: theme.colors.primary }}
           />
         </View>
 
-        <View style={styles.settingRow}>
+        <View style={[styles.settingRow, !isDarkMode && styles.surfaceLight]}>
           <View style={styles.settingInfo}>
-            <Ionicons name="language" size={24} color={theme.colors.text} />
-            <Text style={styles.settingLabel}>Arabic Interface</Text>
+            <Ionicons name="language" size={24} color={isDarkMode ? theme.colors.text : '#000'} />
+            <Text style={[styles.settingLabel, !isDarkMode && styles.textLight]}>Arabic Interface (RTL)</Text>
           </View>
           <Switch
             value={isArabicUI}
-            onValueChange={setIsArabicUI}
+            onValueChange={toggleArabicUI}
             trackColor={{ false: '#767577', true: theme.colors.primary }}
           />
         </View>
@@ -45,18 +45,18 @@ export default function SettingsScreen() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>About</Text>
         
-        <TouchableOpacity style={styles.settingRow}>
+        <TouchableOpacity style={[styles.settingRow, !isDarkMode && styles.surfaceLight]}>
           <View style={styles.settingInfo}>
-            <Ionicons name="information-circle" size={24} color={theme.colors.text} />
-            <Text style={styles.settingLabel}>Version Info</Text>
+            <Ionicons name="information-circle" size={24} color={isDarkMode ? theme.colors.text : '#000'} />
+            <Text style={[styles.settingLabel, !isDarkMode && styles.textLight]}>Version Info</Text>
           </View>
-          <Text style={styles.settingValue}>1.0.0</Text>
+          <Text style={styles.settingValue}>1.0.1</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.settingRow}>
+        <TouchableOpacity style={[styles.settingRow, !isDarkMode && styles.surfaceLight]}>
           <View style={styles.settingInfo}>
-            <Ionicons name="document-text" size={24} color={theme.colors.text} />
-            <Text style={styles.settingLabel}>Terms of Service</Text>
+            <Ionicons name="document-text" size={24} color={isDarkMode ? theme.colors.text : '#000'} />
+            <Text style={[styles.settingLabel, !isDarkMode && styles.textLight]}>Terms of Service</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color={theme.colors.textSecondary} />
         </TouchableOpacity>
@@ -69,6 +69,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
+  },
+  containerLight: {
+    backgroundColor: '#f5f5f5',
+  },
+  surfaceLight: {
+    backgroundColor: '#ffffff',
+    borderColor: '#e0e0e0',
+  },
+  textLight: {
+    color: '#000000',
   },
   content: {
     padding: theme.spacing.lg,

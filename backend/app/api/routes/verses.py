@@ -5,7 +5,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
-from app.api.deps import get_corpus_parser, get_morphology_service, get_vector_store
+from app.api.deps import get_corpus_parser, get_morphology_service, get_vector_store, get_quran_dataset
 from app.models.verse import (
     VerseResponse,
     VerseSearchResult,
@@ -33,6 +33,7 @@ async def get_verse(
     verse: int,
     corpus_parser: CorpusParser = Depends(get_corpus_parser),
     morphology_service: MorphologyService = Depends(get_morphology_service),
+    quran_dataset = Depends(get_quran_dataset),
 ) -> VerseResponse:
     """Get a specific verse with morphological data.
 
@@ -41,10 +42,12 @@ async def get_verse(
         verse: Verse number within the chapter
         corpus_parser: Injected corpus parser
         morphology_service: Injected morphology service
+        quran_dataset: Injected Uthmani dataset service
 
     Returns:
         VerseResponse with word and morphological data
     """
+    await quran_dataset.load_verses()
     # Get morphological data
     morphology = morphology_service.get_quranic_morphology(chapter, verse)
 
@@ -72,6 +75,9 @@ async def get_verse(
         chapter=chapter,
         verse=verse,
         words=words,
+        verse_text=quran_dataset.get_verse_text(chapter, verse),
+        translation=quran_dataset.get_translation(chapter, verse),
+        transliteration=" ".join(w.form for w in words)
     )
 
 
@@ -84,6 +90,7 @@ async def get_chapter_verses(
     offset: int = Query(default=0, ge=0, description="Number of verses to skip"),
     corpus_parser: CorpusParser = Depends(get_corpus_parser),
     morphology_service: MorphologyService = Depends(get_morphology_service),
+    quran_dataset = Depends(get_quran_dataset),
 ) -> dict:
     """Get all verses in a chapter with pagination.
 
@@ -93,10 +100,12 @@ async def get_chapter_verses(
         offset: Number of verses to skip
         corpus_parser: Injected corpus parser
         morphology_service: Injected morphology service
+        quran_dataset: Injected Uthmani dataset service
 
     Returns:
         Dictionary with chapter number, verses list, and pagination info
     """
+    await quran_dataset.load_verses()
     chapter_data = corpus_parser.get_chapter(chapter)
 
     if not chapter_data:
@@ -133,6 +142,9 @@ async def get_chapter_verses(
                 chapter=chapter,
                 verse=verse_num,
                 words=words,
+                verse_text=quran_dataset.get_verse_text(chapter, verse_num),
+                translation=quran_dataset.get_translation(chapter, verse_num),
+                transliteration=" ".join(w.form for w in words)
             )
         )
 
@@ -174,6 +186,7 @@ async def search_verses(
                 verse=result.verse,
                 arabic_text=result.arabic_text,
                 translation=result.translation,
+                transliteration=result.transliteration,
                 similarity=result.similarity,
             )
         )

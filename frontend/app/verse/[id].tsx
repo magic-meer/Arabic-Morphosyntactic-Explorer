@@ -10,8 +10,8 @@ import {
 import { useLocalSearchParams, Stack } from 'expo-router';
 import { Word } from '@/components/Word';
 import { ChatTutor } from '@/components/ChatTutor';
-import { analyzeVerse } from '@/services/api';
-import { MorphologyWord } from '@/types/morphology';
+import { getVerse } from '@/services/api';
+import { WordInfo } from '@/types/morphology';
 import { theme } from '@/constants/theme';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -19,9 +19,9 @@ const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 export default function VerseDetailScreen() {
   const { id, text, reference } = useLocalSearchParams<{ id: string, text: string, reference: string }>();
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
-  const [analysis, setAnalysis] = useState<MorphologyWord | null>(null);
+  const [analysis, setAnalysis] = useState<WordInfo | null>(null);
   const [loading, setLoading] = useState(false);
-  const [verseAnalysis, setVerseAnalysis] = useState<MorphologyWord[]>([]);
+  const [verseAnalysis, setVerseAnalysis] = useState<WordInfo[]>([]);
 
   // Split verse into words
   const words = text ? text.split(' ') : [];
@@ -38,10 +38,14 @@ export default function VerseDetailScreen() {
 
   useEffect(() => {
     const fetchAnalysis = async () => {
-      if (!text) return;
+      if (!id) return;
+      
+      const [chapterStr, verseStr] = id.split(':');
+      if (!chapterStr || !verseStr) return;
+
       setLoading(true);
       try {
-        const result = await analyzeVerse(text);
+        const result = await getVerse(parseInt(chapterStr, 10), parseInt(verseStr, 10));
         setVerseAnalysis(result.words);
       } catch (error) {
         console.error('Failed to load verse analysis', error);
@@ -51,7 +55,7 @@ export default function VerseDetailScreen() {
     };
 
     fetchAnalysis();
-  }, [text]);
+  }, [id]);
 
   return (
     <View style={styles.container}>
@@ -83,8 +87,8 @@ export default function VerseDetailScreen() {
             <Text style={styles.analysisTitle}>Analysis / تحليل: {selectedWord}</Text>
             {analysis ? (
               <View style={styles.detailsContainer}>
-                <DetailRow label="Root / الجذر" value={analysis.features.root || ''} isArabic />
-                <DetailRow label="Lemma / اللمة" value={analysis.features.lemma || ''} isArabic />
+                <DetailRow label="Root / الجذر" value={analysis.root || ''} isArabic />
+                <DetailRow label="Lemma / اللمة" value={analysis.lemma || ''} isArabic />
                 <DetailRow label="POS Tag / نوع الكلمة" value={analysis.features.pos || analysis.tag} />
                 <DetailRow label="Grammar / الإعراب" value={analysis.tag} />
               </View>
@@ -99,6 +103,7 @@ export default function VerseDetailScreen() {
         <ChatTutor 
           verseContext={text || ''} 
           reference={reference || ''} 
+          verseAnalysis={verseAnalysis}
         />
       </ScrollView>
     </View>

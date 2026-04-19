@@ -9,13 +9,16 @@ logger = get_logger(__name__)
 
 # Module-level flag for CAMeL Tools availability
 _CAMEL_AVAILABLE: Optional[bool] = None
-_MorphologyAnalyzer: Optional[type] = None
+_Analyzer: Optional[type] = None
+_MorphologyDB: Optional[type] = None
 
 try:
-    from camel_tools.morphology.analyzer import MorphologyAnalyzer
+    from camel_tools.morphology.database import MorphologyDB
+    from camel_tools.morphology.analyzer import Analyzer
 
     _CAMEL_AVAILABLE = True
-    _MorphologyAnalyzer = MorphologyAnalyzer
+    _Analyzer = Analyzer
+    _MorphologyDB = MorphologyDB
 except ImportError:
     _CAMEL_AVAILABLE = False
     logger.info("CAMeL Tools not available. Morphology analysis will be limited.")
@@ -36,8 +39,10 @@ class MorphologyService:
 
         if self._camel_available:
             try:
-                # Initialize default CAMeL analyzer
-                self._analyzer = _MorphologyAnalyzer("calcea")
+                # Load the default morphological database (MSA)
+                # then create an Analyzer instance — per CAMeL Tools Guided Tour
+                db = _MorphologyDB.builtin_db()
+                self._analyzer = _Analyzer(db)
                 logger.info("CAMeL Tools morphology analyzer initialized")
             except Exception as e:
                 logger.warning(f"Failed to initialize CAMeL analyzer: {e}")
@@ -62,68 +67,52 @@ class MorphologyService:
 
         return _CAMEL_AVAILABLE
 
-    def analyze_word(self, word: str) -> dict[str, Any]:
+    def analyze_word(self, word: str) -> list[dict[str, Any]]:
         """Analyze a single Arabic word using CAMeL Tools.
 
         Args:
             word: Arabic word to analyze
 
         Returns:
-            Dictionary containing analysis results with keys:
-            - form: The original word form
-            - tag: POS tag if available
-            - features: Dictionary with pos, root, lemma (if available)
-            - error: Error message if analysis failed
-            - camel_available: Whether CAMeL Tools is available
+            List of analysis candidate dictionaries. Each contains keys like:
+            diac, lex, root, gloss, pos, per, asp, vox, mod, gen, num, cas,
+            form_gen, form_num, pattern, enc0, prc0-3, stt, d3seg, bw, catib6, ud.
+            Returns a single-element list with an error key if analysis fails.
         """
-        result = {
-            "form": word,
-            "tag": None,
-            "features": {},
-            "camel_available": self._camel_available,
-        }
-
         if not self._camel_available or self._analyzer is None:
-            result["error"] = "CAMeL Tools not available"
-            return result
+            return [{"error": "CAMeL Tools not available", "form": word}]
 
         try:
-            # Analyze the word
             analyses = self._analyzer.analyze(word)
 
-            if analyses and len(analyses) > 0:
-                # Get first analysis result
-                first = analyses[0]
+            if not analyses:
+                return [{"error": "No analysis available", "form": word}]
 
-                # Extract features
-                features = {}
+            # CAMeL Tools returns list of dicts with all morphological features
+            results = []
+            for analysis in analyses:
+                entry: dict[str, Any] = {}
+                # Core fields
+                for key in [
+                    "diac", "lex", "root", "gloss", "pos", "bw",
+                    "per", "asp", "vox", "mod", "gen", "num", "cas", "stt",
+                    "form_gen", "form_num", "pattern", "enc0",
+                    "prc0", "prc1", "prc2", "prc3",
+                    "d1seg", "d2seg", "d3seg", "atbseg",
+                    "catib6", "ud", "source",
+                ]:
+                    val = analysis.get(key) if isinstance(analysis, dict) else getattr(analysis, key, None)
+                    if val is not None:
+                        entry[key] = str(val)
+                if entry:
+                    entry["form"] = word
+                    results.append(entry)
 
-                # POS (part of speech)
-                if hasattr(first, "pos") and first.pos:
-                    features["pos"] = first.pos
-                    result["tag"] = first.pos
-
-                # Root
-                if hasattr(first, "root") and first.root:
-                    features["root"] = str(first.root)
-
-                # Lemma
-                if hasattr(first, "lemma") and first.lemma:
-                    features["lemma"] = str(first.lemma)
-
-                # Diacritization (if available)
-                if hasattr(first, "diacritization") and first.diacritization:
-                    features["diacritization"] = str(first.diacritization)
-
-                result["features"] = features
-            else:
-                result["error"] = "No analysis available"
+            return results if results else [{"error": "No features extracted", "form": word}]
 
         except Exception as e:
             logger.warning(f"Failed to analyze word '{word}': {e}")
-            result["error"] = str(e)
-
-        return result
+            return [{"error": str(e), "form": word}]
 
     def get_quranic_morphology(self, chapter: int, verse: int) -> dict[str, Any]:
         """Get morphological data for a Quranic verse from the corpus.

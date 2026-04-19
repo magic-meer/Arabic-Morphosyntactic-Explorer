@@ -15,14 +15,28 @@ export interface MorphologyFeatures {
 export interface MorphologyWord {
   form: string;
   tag: string;
-  features: MorphologyFeatures;
-  original_features?: Record<string, string>;
+  features: {
+    [key: string]: any;
+  };
 }
 
 export interface MorphologyResponse {
-  chapter?: number;
-  verse?: number;
-  text?: string;
   words: MorphologyWord[];
-  tokens_count?: number;
+}
+
+export interface WordInfo {
+  form: string;
+  tag: string;
+  lemma?: string;
+  root?: string;
+  features: { [key: string]: any };
+}
+
+export interface VerseResponse {
+  chapter: number;
+  verse: number;
+  words: WordInfo[];
+  verse_text?: string;
+  translation?: string;
+  transliteration?: string;
 }

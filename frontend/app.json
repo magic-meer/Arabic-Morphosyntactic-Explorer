@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "frontend",
-    "slug": "frontend",
+    "name": "Jawhar",
+    "slug": "jawhar",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "frontend",
+    "scheme": "jawhar",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -47,7 +47,7 @@
     "extra": {
       "supportsRTL": true,
       "eas": {
-        "projectId": "a-ame-explorer"
+        "projectId": "jawhar"
       }
     }
   }

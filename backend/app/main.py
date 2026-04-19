@@ -6,7 +6,7 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import chat, morphology, verses
+from app.api.routes import chat, morphology, verses, dictionary
 from app.config import settings
 from app.core.constants import API_PREFIX
 from app.services.vector_store import VectorStore
@@ -52,10 +52,10 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # Register API routers
     app.include_router(verses.router, prefix=API_PREFIX)
     app.include_router(morphology.router, prefix=API_PREFIX)
     app.include_router(chat.router, prefix=API_PREFIX)
+    app.include_router(dictionary.router, prefix=API_PREFIX)
 
     @app.get(f"{API_PREFIX}/health")
     async def health_check() -> dict:

@@ -13,12 +13,15 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { sendChatMessage, ChatMessage } from '@/services/api';
 
+import { WordInfo } from '@/types/morphology';
+
 interface ChatTutorProps {
   verseContext: string;
   reference: string;
+  verseAnalysis?: WordInfo[];
 }
 
-export const ChatTutor: React.FC<ChatTutorProps> = ({ verseContext, reference }) => {
+export const ChatTutor: React.FC<ChatTutorProps> = ({ verseContext, reference, verseAnalysis }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -35,7 +38,19 @@ export const ChatTutor: React.FC<ChatTutorProps> = ({ verseContext, reference })
     setLoading(true);
 
     try {
-      const response = await sendChatMessage(input, newMessages, verseContext);
+      // Because the remote backend ChatRequest model currently discards 'history',
+      // we stitch contextual verse analysis securely into the first prompt.
+      let promptPayload = input;
+      if (messages.length === 1 && verseAnalysis && verseAnalysis.length > 0) {
+         const strippedAnalysis = verseAnalysis.map(w => ({ word: w.form, root: w.root, pos: w.features?.pos || w.tag }));
+         promptPayload = `Context Verse (${reference}): ${verseContext}\n\nMorphological Metadata:\n${JSON.stringify(strippedAnalysis)}\n\nUser Question: ${input}`;
+      } else if (messages.length > 1) {
+         // Optionally append chat history as text if backend lacks memory
+         const stringifiedHistory = messages.map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\n');
+         promptPayload = `Conversation History:\n${stringifiedHistory}\n\nUser Question: ${input}`;
+      }
+
+      const response = await sendChatMessage(promptPayload, newMessages, verseContext);
       const assistantMsg: ChatMessage = { role: 'assistant', content: response.response };
       setMessages([...newMessages, assistantMsg]);
     } catch (error) {

@@ -73,3 +73,22 @@ class MorphologyAnalysisResponse(BaseModel):
         default_factory=list, description="List of analyzed words"
     )
     tokens_count: int = Field(description="Total number of tokens analyzed")
+
+
+class WordAnalysisRequest(BaseModel):
+    """Request model for single-word morphological + AI analysis."""
+
+    word: str = Field(description="Arabic word to analyze")
+
+
+class WordAnalysisResponse(BaseModel):
+    """Response combining CAMeL morphological analysis with AI explanation."""
+
+    word: str = Field(description="The input word")
+    analyses: list[dict] = Field(
+        default_factory=list,
+        description="All CAMeL Tools analysis candidates with features",
+    )
+    ai_explanation: str = Field(
+        default="", description="AI-generated Sarf/I'rab explanation"
+    )
