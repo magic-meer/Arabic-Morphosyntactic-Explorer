@@ -27,16 +27,28 @@ def _convert_features(features_dict: dict) -> MorphologyFeatures:
     """
     return MorphologyFeatures(
         pos=features_dict.get("pos"),
-        lemma=features_dict.get("lemma"),
+        lex=features_dict.get("lex") or features_dict.get("lemma"),
         root=features_dict.get("root"),
-        gender=features_dict.get("gender"),
-        number=features_dict.get("number"),
-        case=features_dict.get("case"),
-        mood=features_dict.get("mood"),
-        voice=features_dict.get("voice"),
-        aspect=features_dict.get("aspect"),
-        person=features_dict.get("person"),
-        pronominal_suffix=features_dict.get("pronominal_suffix"),
+        diac=features_dict.get("diac"),
+        pattern=features_dict.get("pattern"),
+        gloss=features_dict.get("gloss"),
+        gen=features_dict.get("gen") or features_dict.get("gender"),
+        num=features_dict.get("num") or features_dict.get("number"),
+        cas=features_dict.get("cas") or features_dict.get("case"),
+        mod=features_dict.get("mod"),
+        vox=features_dict.get("vox") or features_dict.get("voice"),
+        asp=features_dict.get("asp") or features_dict.get("aspect"),
+        per=features_dict.get("per") or features_dict.get("person"),
+        d3seg=features_dict.get("d3seg"),
+        bw=features_dict.get("bw"),
+        # Legacy mappings
+        lemma=features_dict.get("lex") or features_dict.get("lemma"),
+        gender=features_dict.get("gen") or features_dict.get("gender"),
+        number=features_dict.get("num") or features_dict.get("number"),
+        case=features_dict.get("cas") or features_dict.get("case"),
+        voice=features_dict.get("vox") or features_dict.get("voice"),
+        aspect=features_dict.get("asp") or features_dict.get("aspect"),
+        person=features_dict.get("per") or features_dict.get("person"),
     )
 
 

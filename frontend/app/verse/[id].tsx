@@ -36,7 +36,7 @@ export default function VerseDetailScreen() {
     return t.replace(/[﴿﴾\s\u06D6-\u06DC\u06DF-\u06E8\u06EA-\u06ED]/g, '');
   };
 
-  const handleWordPress = async (wordText: string) => {
+  const handleWordPress = (wordText: string) => {
     setSelectedWord(wordText);
     const normalizedTarget = normalizeForMatch(wordText);
     
@@ -45,18 +45,6 @@ export default function VerseDetailScreen() {
       a.form === wordText || normalizeForMatch(a.form) === normalizedTarget
     );
     setAnalysis(found || null);
-
-    // Call API for AI explanation (Sarf is already pre-fetched in getVerse)
-    setAiLoading(true);
-    setAiExplanation(null);
-    try {
-      const response = await analyzeWord(wordText, aiModel);
-      setAiExplanation(response.ai_explanation || null);
-    } catch (error) {
-      console.error('AI analysis failed', error);
-    } finally {
-      setAiLoading(false);
-    }
   };
 
   useEffect(() => {
@@ -128,19 +116,6 @@ export default function VerseDetailScreen() {
                 {loading ? 'Analyzing... / جارٍ التحليل' : 'No detailed analysis found / لا يوجد تحليل مفصل'}
               </Text>
             )}
-
-            {aiLoading ? (
-              <View style={styles.aiLoadingContainer}>
-                <ActivityIndicator color={theme.colors.primary} size="small" />
-                <Text style={styles.aiLoadingText}>AI is thinking...</Text>
-              </View>
-            ) : aiExplanation ? (
-              <View style={styles.explanationSection}>
-                <View style={styles.divider} />
-                <Text style={styles.explanationTitle}>AI Insight / شرح الذكاء:</Text>
-                <Text style={styles.explanationText}>{aiExplanation}</Text>
-              </View>
-            ) : null}
           </View>
         )}
 

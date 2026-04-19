@@ -9,30 +9,29 @@ class MorphologyFeatures(BaseModel):
     """Morphological features of a word."""
 
     pos: Optional[str] = Field(default=None, description="Part of speech")
-    lemma: Optional[str] = Field(default=None, description="Lemma/dictionary form")
-    root: Optional[str] = Field(
-        default=None, description="Root form (for derived words)"
-    )
-    gender: Optional[str] = Field(
-        default=None, description="Gender (masculine/feminine)"
-    )
-    number: Optional[str] = Field(default=None, description="Number (singular/plural)")
-    case: Optional[str] = Field(
-        default=None, description="Grammatical case (nominative/accusative/genitive)"
-    )
-    mood: Optional[str] = Field(
-        default=None, description="Mood (indicative/subjunctive/jussive)"
-    )
-    voice: Optional[str] = Field(default=None, description="Voice (active/passive)")
-    aspect: Optional[str] = Field(
-        default=None, description="Aspect (perfect/imperfect)"
-    )
-    person: Optional[str] = Field(
-        default=None, description="Person (first/second/third)"
-    )
-    pronominal_suffix: Optional[str] = Field(
-        default=None, description="Pronominal suffix"
-    )
+    lex: Optional[str] = Field(default=None, description="Lemma/dictionary form")
+    root: Optional[str] = Field(default=None, description="Root form")
+    diac: Optional[str] = Field(default=None, description="Diacritized form")
+    pattern: Optional[str] = Field(default=None, description="Morphological pattern")
+    gloss: Optional[str] = Field(default=None, description="English meaning")
+    gen: Optional[str] = Field(default=None, description="Gender")
+    num: Optional[str] = Field(default=None, description="Number")
+    cas: Optional[str] = Field(default=None, description="Case")
+    mod: Optional[str] = Field(default=None, description="Mood")
+    vox: Optional[str] = Field(default=None, description="Voice")
+    asp: Optional[str] = Field(default=None, description="Aspect")
+    per: Optional[str] = Field(default=None, description="Person")
+    d3seg: Optional[str] = Field(default=None, description="Segmentation")
+    bw: Optional[str] = Field(default=None, description="Buckwalter transliteration")
+    
+    # Aliases/Compatible fields
+    lemma: Optional[str] = None
+    gender: Optional[str] = None
+    number: Optional[str] = None
+    case: Optional[str] = None
+    voice: Optional[str] = None
+    aspect: Optional[str] = None
+    person: Optional[str] = None
 
 
 class MorphologyWord(BaseModel):
