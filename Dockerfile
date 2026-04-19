@@ -5,6 +5,7 @@ FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app
+ENV CAMEL_TOOLS_DATA=/opt/camel_tools
 
 # Set working directory
 WORKDIR /app
@@ -21,7 +22,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy dataset and backend code
-COPY dataset/ /dataset/
+COPY dataset/ dataset/
 COPY backend/ /app/
 
 # Expose port (7860 for Hugging Face Spaces)
