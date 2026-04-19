@@ -37,6 +37,18 @@ class MorphologyService:
         self._camel_available = self._check_camel_tools()
         self._analyzer: Optional[Any] = None
 
+    def _get_analyzer(self) -> Optional[Any]:
+        """Lazy-load the CAMeL Tools analyzer.
+
+        Returns:
+            The analyzer instance if available, None otherwise.
+        """
+        if self._analyzer is not None:
+            return self._analyzer
+
+        if not self._camel_available:
+            self._camel_available = self._check_camel_tools()
+
         if self._camel_available:
             try:
                 # Load the default morphological database (MSA)
@@ -47,6 +59,8 @@ class MorphologyService:
             except Exception as e:
                 logger.warning(f"Failed to initialize CAMeL analyzer: {e}")
                 self._camel_available = False
+
+        return self._analyzer
 
     def _check_camel_tools(self) -> bool:
         """Check if CAMeL Tools is available.
@@ -79,11 +93,12 @@ class MorphologyService:
             form_gen, form_num, pattern, enc0, prc0-3, stt, d3seg, bw, catib6, ud.
             Returns a single-element list with an error key if analysis fails.
         """
-        if not self._camel_available or self._analyzer is None:
+        analyzer = self._get_analyzer()
+        if not self._camel_available or analyzer is None:
             return [{"error": "CAMeL Tools not available", "form": word}]
 
         try:
-            analyses = self._analyzer.analyze(word)
+            analyses = analyzer.analyze(word)
 
             if not analyses:
                 return [{"error": "No analysis available", "form": word}]
