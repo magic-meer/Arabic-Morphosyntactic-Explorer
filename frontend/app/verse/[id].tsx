@@ -10,18 +10,22 @@ import {
 import { useLocalSearchParams, Stack } from 'expo-router';
 import { Word } from '@/components/Word';
 import { ChatTutor } from '@/components/ChatTutor';
-import { getVerse } from '@/services/api';
+import { getVerse, analyzeWord } from '@/services/api';
 import { WordInfo } from '@/types/morphology';
 import { theme } from '@/constants/theme';
 import { formatFeatureValue } from '@/utils/morphology';
+import { usePreferences } from '@/context/PreferencesContext';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export default function VerseDetailScreen() {
   const { id, text, reference } = useLocalSearchParams<{ id: string, text: string, reference: string }>();
+  const { aiModel } = usePreferences();
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<WordInfo | null>(null);
   const [loading, setLoading] = useState(false);
+  const [aiExplanation, setAiExplanation] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
   const [verseAnalysis, setVerseAnalysis] = useState<WordInfo[]>([]);
 
   // Split verse into words
@@ -32,7 +36,7 @@ export default function VerseDetailScreen() {
     return t.replace(/[﴿﴾\s\u06D6-\u06DC\u06DF-\u06E8\u06EA-\u06ED]/g, '');
   };
 
-  const handleWordPress = (wordText: string) => {
+  const handleWordPress = async (wordText: string) => {
     setSelectedWord(wordText);
     const normalizedTarget = normalizeForMatch(wordText);
     
@@ -41,6 +45,18 @@ export default function VerseDetailScreen() {
       a.form === wordText || normalizeForMatch(a.form) === normalizedTarget
     );
     setAnalysis(found || null);
+
+    // Call API for AI explanation
+    setAiLoading(true);
+    setAiExplanation(null);
+    try {
+      const response = await analyzeWord(wordText, aiModel);
+      setAiExplanation(response.ai_explanation || null);
+    } catch (error) {
+      console.error('AI analysis failed', error);
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -107,6 +123,19 @@ export default function VerseDetailScreen() {
                 {loading ? 'Analyzing... / جارٍ التحليل' : 'No detailed analysis found / لا يوجد تحليل مفصل'}
               </Text>
             )}
+
+            {aiLoading ? (
+              <View style={styles.aiLoadingContainer}>
+                <ActivityIndicator color={theme.colors.primary} size="small" />
+                <Text style={styles.aiLoadingText}>AI is thinking...</Text>
+              </View>
+            ) : aiExplanation ? (
+              <View style={styles.explanationSection}>
+                <View style={styles.divider} />
+                <Text style={styles.explanationTitle}>AI Insight / شرح الذكاء:</Text>
+                <Text style={styles.explanationText}>{aiExplanation}</Text>
+              </View>
+            ) : null}
           </View>
         )}
 
@@ -203,5 +232,37 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
     textAlign: 'center',
     fontFamily: theme.typography.fontFamilies.english,
+  },
+  aiLoadingContainer: {
+    marginTop: theme.spacing.lg,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: theme.spacing.sm,
+  },
+  aiLoadingText: {
+    color: theme.colors.textSecondary,
+    fontSize: theme.typography.sizes.xs,
+    fontFamily: theme.typography.fontFamilies.english,
+  },
+  explanationSection: {
+    marginTop: theme.spacing.md,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    marginVertical: theme.spacing.md,
+  },
+  explanationTitle: {
+    color: theme.colors.primary,
+    fontSize: theme.typography.sizes.sm,
+    fontFamily: theme.typography.fontFamilies.englishBold,
+    marginBottom: theme.spacing.xs,
+  },
+  explanationText: {
+    color: theme.colors.text,
+    fontSize: theme.typography.sizes.sm,
+    fontFamily: theme.typography.fontFamilies.english,
+    lineHeight: 20,
   },
 });
