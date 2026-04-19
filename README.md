@@ -66,13 +66,18 @@ This script will:
 ---
 
 ## ☁️ Deployment
-
-The backend is containerized and optimized for **Hugging Face Spaces**.
-
-- **Dockerfile**: Optimized for HF with automated startup database population.
-- **Production URL**: `https://meherali-jawhar.hf.space/`
-
-*Note: Ensure `GEMINI_API_KEY` is set as a Secret in your HF Space.*
+ 
+ The backend is containerized and hosted on **Hugging Face Spaces** using a Docker environment.
+ 
+ - **Production API**: `https://meherali-jawhar.hf.space/api/v1`
+ - **Health Check**: `https://meherali-jawhar.hf.space/api/v1/health`
+ - **Space URL**: [huggingface.co/spaces/meherali/jawhar](https://huggingface.co/spaces/meherali/jawhar)
+ 
+ ### CI/CD & Deployment Process
+ 
+ For production deployment, we use a history-optimized branch (`hf-deploy`) to ensure large assets and binaries are handled efficiently by Hugging Face's infrastructure.
+ 
+ *Note: Ensure `GEMINI_API_KEY` is set as a Secret in the HF Space settings.*
 
 ---
 
