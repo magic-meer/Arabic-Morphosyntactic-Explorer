@@ -222,6 +222,8 @@ const styles = StyleSheet.create({
   },
   assistantText: {
     color: theme.colors.text,
+    textAlign: 'left',
+    writingDirection: 'ltr',
   },
   inputContainer: {
     flexDirection: 'row',

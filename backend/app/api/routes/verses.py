@@ -60,12 +60,22 @@ async def get_verse(
     # Convert to response model
     words = []
     for word_data in morphology.get("words", []):
+        form = word_data.get("form", "")
         features = word_data.get("features", {})
+        
+        # Supplement with CAMeL Tools analysis for richer metadata
+        camel_analyses = morphology_service.analyze_word(form)
+        if camel_analyses and "error" not in camel_analyses[0]:
+            # Merge CAMeL features into existing features if not already present
+            for k, v in camel_analyses[0].items():
+                if k not in features:
+                    features[k] = str(v)
+
         words.append(
             WordInfo(
-                form=word_data.get("form", ""),
+                form=form,
                 tag=word_data.get("tag", ""),
-                lemma=features.get("lemma"),
+                lemma=features.get("lemma") or features.get("lex"),
                 root=features.get("root"),
                 features=features,
             )

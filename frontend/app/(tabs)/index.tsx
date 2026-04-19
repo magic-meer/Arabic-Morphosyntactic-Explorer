@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { analyzeWord, WordAnalysisResponse } from '@/services/api';
 import { theme } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
+import { formatFeatureValue } from '@/utils/morphology';
 
 const FEATURE_LABELS: Record<string, string> = {
   diac: 'Diacritized / مُشَكَّل',
@@ -115,7 +116,7 @@ export default function HomeScreen() {
                     styles.featureValue,
                     (key === 'diac' || key === 'root' || key === 'd3seg') && styles.arabicValue,
                   ]}>
-                    {value}
+                    {formatFeatureValue(key, value)}
                   </Text>
                 </View>
               );
@@ -284,6 +285,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: theme.spacing.md,
     fontStyle: 'italic',
+  },
+  assistantText: {
+    color: theme.colors.text,
+    textAlign: 'left',
+    writingDirection: 'ltr',
   },
   aiText: {
     color: theme.colors.text,

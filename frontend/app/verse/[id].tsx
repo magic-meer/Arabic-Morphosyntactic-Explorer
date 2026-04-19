@@ -13,6 +13,7 @@ import { ChatTutor } from '@/components/ChatTutor';
 import { getVerse } from '@/services/api';
 import { WordInfo } from '@/types/morphology';
 import { theme } from '@/constants/theme';
+import { formatFeatureValue } from '@/utils/morphology';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -26,12 +27,18 @@ export default function VerseDetailScreen() {
   // Split verse into words
   const words = text ? text.split(' ') : [];
 
+  const normalizeForMatch = (t: string) => {
+    // Remove common Quranic signs and non-essential chars
+    return t.replace(/[﴿﴾\s\u06D6-\u06DC\u06DF-\u06E8\u06EA-\u06ED]/g, '');
+  };
+
   const handleWordPress = (wordText: string) => {
     setSelectedWord(wordText);
-    // Remove punctuation for matching
-    const normalizedTarget = wordText.replace(/[﴿﴾\s]/g, '');
+    const normalizedTarget = normalizeForMatch(wordText);
+    
+    // Try exact match first, then normalized match
     const found = verseAnalysis.find(a => 
-      a.form.replace(/[﴿﴾\s]/g, '') === normalizedTarget
+      a.form === wordText || normalizeForMatch(a.form) === normalizedTarget
     );
     setAnalysis(found || null);
   };
@@ -89,8 +96,11 @@ export default function VerseDetailScreen() {
               <View style={styles.detailsContainer}>
                 <DetailRow label="Root / الجذر" value={analysis.root || ''} isArabic />
                 <DetailRow label="Lemma / اللمة" value={analysis.lemma || ''} isArabic />
-                <DetailRow label="POS Tag / نوع الكلمة" value={analysis.features.pos || analysis.tag} />
-                <DetailRow label="Grammar / الإعراب" value={analysis.tag} />
+                <DetailRow label="POS / نوع الكلمة" value={formatFeatureValue('pos', analysis.features.pos || analysis.tag)} />
+                <DetailRow label="Gender / الجنس" value={formatFeatureValue('gen', analysis.features.gen || '')} />
+                <DetailRow label="Number / العدد" value={formatFeatureValue('num', analysis.features.num || '')} />
+                <DetailRow label="Case / الحالة" value={formatFeatureValue('cas', analysis.features.cas || '')} />
+                {analysis.features.gloss && <DetailRow label="Meaning / المعنى" value={analysis.features.gloss} />}
               </View>
             ) : (
               <Text style={styles.noAnalysisText}>
