@@ -107,6 +107,41 @@ The system architecture encompasses three primary layers:
     \end{itemize}
 \end{enumerate}
 
+\section{Dataset Description}
+
+\subsection{Quranic Corpus}
+The system operates on a comprehensive Quranic dataset containing the complete text of the Quran (6,236 verses across 114 chapters). Each verse entry includes structured fields as presented in Table~\ref{tab:dataset-fields}.
+
+\begin{table}[H]
+\centering
+\caption{Quranic Dataset Fields}
+\label{tab:dataset-fields}
+\begin{tabular}{|l|l|p{5cm}|}
+\toprule
+\textbf{Field} & \textbf{Type} & \textbf{Description} \\
+\midrule
+surah\_no & Integer & Chapter number (1–114) \\
+surah\_name\_en & String & English chapter name \\
+surah\_name\_ar & String & Arabic chapter name \\
+surah\_name\_roman & String & Transliterated name \\
+ayah\_no\_surah & Integer & Verse number within chapter \\
+ayah\_no\_quran & Integer & Global verse number \\
+ayah\_ar & String & Arabic verse text \\
+ayah\_en & String & English translation \\
+list\_of\_words & Array & Tokenized word array \\
+place\_of\_revelation & String & Meccan or Medinan \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Data Characteristics}
+The dataset exhibits several characteristics relevant to NLP processing:
+\begin{itemize}
+    \item \textbf{Bilingual Content}: Each verse provides both Arabic source text and English translation, enabling bilingual analysis.
+    \item \textbf{Tokenization}: Words are pre-tokenized, facilitating word-level analysis.
+    \item \textbf{Metadata Enrichment}: Verse origin (Meccan/Medinan), chapter position, and verse statistics are included.
+\end{itemize}
+
 \section{Technical Implementation}
 
 \subsection{Morphological Analysis Engine}
@@ -121,6 +156,27 @@ Jawhar integrates the \texttt{gemini-3.1-flash-lite-preview} model. In the \text
 
 \subsection{Frontend Engineering \& RTL Compliance}
 React Native Expo Router manages deep linking. A critical UI challenge was preserving standard application patterns (like back functionality) while forcing Right-To-Left directionality. Utilizing Expo's \texttt{I18nManager.forceRTL(true)}, layouts adapt flawlessly, keeping Arabic primary while aligning corresponding English translations logically. Custom Glassmorphism styles and specific ``Amiri'' typography are loaded statically to convey an elegant, modern visual identity.
+
+\subsection{API Endpoints}
+The backend exposes RESTful endpoints for all core functionality. Table~\ref{tab:api-endpoints} summarizes the available endpoints.
+
+\begin{table}[H]
+\caption{REST API Endpoints}
+\label{tab:api-endpoints}
+\begin{tabular}{|l|l|p{6cm}|}
+\toprule
+\textbf{Method} & \textbf{Endpoint} & \textbf{Description} \\
+\midrule
+GET & /api/v1/verses/\{chapter\}/\{verse\} & Retrieve specific verse \\
+GET & /api/v1/verses/\{chapter\} & List chapter verses with pagination \\
+POST & /api/v1/verses/search & Semantic verse search \\
+GET & /api/v1/morphology/\{ch\}/\{verse\} & Get verse morphological analysis \\
+POST & /api/v1/morphology/analyze & Analyze user input text \\
+POST & /api/v1/morphology/analyze-word & Single word with AI explanation \\
+POST & /api/v1/chat/ & AI tutoring conversation \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{Deployment \& CI/CD Operations}
 
@@ -140,6 +196,36 @@ The development successfully united complex computational linguistics with mobil
     \item Deployment stability and 0-configuration orchestration: The provided \texttt{dev.sh} spins up virtual environments across Python and Node.js consecutively in under 45 seconds for parallel local development.
 \end{itemize}
 
+\subsection{Functional Implementation Status}
+Table~\ref{tab:feature-status} presents the implemented features and their operational status.
+
+\begin{table}[H]
+\caption{Implemented Features and Status}
+\label{tab:feature-status}
+\begin{tabular}{|lcl|}
+\toprule
+\textbf{Feature} & & \textbf{Status} \\
+\midrule
+Morphological Analysis (Sarf) & $\checkmark$ & Operational via CAMeL Tools \\
+Semantic Search (RAG) & $\checkmark$ & Operational via ChromaDB \\
+AI Pedagogical Tutor & $\checkmark$ & Operational via Gemini 3.1 Flash \\
+Bilingual UI (Arabic/English) & $\checkmark$ & Operational with RTL support \\
+Mobile Application (Android) & $\checkmark$ & Built via Expo EAS \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Key Features}
+The system implements five core features:
+
+\begin{enumerate}
+    \item \textbf{Deep Morphological Analysis (Sarf)}: Word-by-word breakdown showing root, lemma, POS tags, voice, aspect, gender, number, person, and grammatical case.
+    \item \textbf{Semantic Search}: Vector-based similarity search enabling natural language queries such as "Verses about mercy and forgiveness."
+    \item \textbf{AI Pedagogical Tutor}: Conversational interface providing explanations grounded in Quranic text with bilingual support.
+    \item \textbf{Bilingual RTL Interface}: Complete Arabic/English support with automatic RTL/LTR layout switching.
+    \item \textbf{Modern UI}: Dark mode theme with Glassmorphism design elements.
+\end{enumerate}
+
 \section{Limitations \& Future Work}
 
 While foundational architecture is robust, the computational size of CAMeL databases dictates high memory constraints, pushing latency up slightly during cold starts on free-tier cloud containers. 
@@ -153,5 +239,192 @@ Future roadmap efforts should focus on:
 \section{Conclusion}
 
 Jawhar stands as a successful Capstone project proving modern LLM and heuristic NLP methodologies can run conjointly inside scalable, user-centric mobile applications. By mitigating the computational convolution of Arabic linguistic tools into clean graphical interfaces and natural language chats, it establishes an exceptional pedagogical pipeline designed to modernize traditional Semitic linguistic studies.
+
+\section{References}
+
+\begin{enumerate}
+    \item \textbf{CAMeL Tools}. (2024). CAMeL Tools: Arabic Natural Language Processing Tools. Carnegie Mellon University Qatar. Retrieved from \url{https://camel-tools.com/}
+    
+    \item \textbf{Google}. (2024). Gemini API Documentation. Google AI Studio. Retrieved from \url{https://ai.google.dev/}
+    
+    \item \textbf{ChromaDB}. (2024). Chroma: The AI-native open-source vector database. Retrieved from \url{https://www.trychroma.com/}
+    
+    \item \textbf{Tiangio }. (2024). FastAPI. Retrieved from \url{https://fastapi.tiangolo.com/}
+    
+    \item \textbf{Meta}. (2024). React Native. Retrieved from \url{https://reactnative.dev/}
+    
+    \item \textbf{Expo}. (2024). Expo: The fastest way to build React Native apps. Retrieved from \url{https://expo.dev/}
+    
+    \item \textbf{Hugging Face}. (2024). Hugging Face Spaces: ML demo hosting. Retrieved from \url{https://huggingface.co/spaces}
+    
+    \item \textbf{SRQ21 Collection}. (2024). The Siraj Quran 21 Corpus. Retrieved from \url{https://github.com/}
+    
+    \item \textbf{Python Software Foundation}. (2024). Python Programming Language (Version 3.12). Retrieved from \url{https://www.python.org/}
+    
+    \item \textbf{Node.js Foundation}. (2024). Node.js JavaScript Runtime. Retrieved from \url{https://nodejs.org/}
+\end{enumerate}
+
+\appendix
+\section{System Architecture Diagram}
+
+Figure~\ref{fig:system-architecture} presents the high-level system architecture.
+
+\begin{figure}[H]
+\centering
+\caption{System Architecture Overview}
+\label{fig:system-architecture}
+\begin{scriptsize}
+\begin{verbatim}
+┌─────────────────────────────────────────────────────────────┐
+│                  Frontend (React Native/Expo)                │
+│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌──────────┐ │
+│  │Analyzer│  │Explore │  │ Chat    │  │Settings │ │
+│  │ Tab   │  │  Tab   │  │  Tab   │  │  Tab    │ │
+│  └────┬──┘  └────┬──┘  └────┬──┘  └────┬───┘ │
+└───────┼───────────┼───────────┼───────────┼──────────┘
+        │           │           │          │
+        └───────────┴─────┬─────┴──────────┘
+                       │
+              ┌─────────▼────────┐
+              │  FastAPI    │
+              │  REST API   │
+              └──────┬─────┘
+                     │
+    ┌────────────────┼────────────────┐
+    │                │               │
+┌──▼───┐      ┌────▼───┐    ┌──▼────┐
+│Morph │      │Gemini  │    │ RAG   │
+│Service│      │Service│    │Pipeline
+│      │      │       │    │       │
+└──┬───┘      └────┬───┘    └──┬────┘
+   │               │          │
+┌──▼──┐      ┌──▼───┐  ┌──▼───┐
+│CAMeL │      │GenAI │  │Chroma│
+│Tools │      │Embed │  │DB    │
+└──────┘      └──────┘  └──────┘
+\end{verbatim}
+\end{scriptsize}
+\end{figure}
+
+\section{Directory Structure}
+
+Figure~\ref{fig:directory-structure} presents the project directory structure.
+
+\begin{figure}[H]
+\centering
+\caption{Project Directory Structure}
+\label{fig:directory-structure}
+\begin{scriptsize}
+\begin{verbatim}
+jawhar/
+├── backend/                 # FastAPI application
+│   ├── app/
+│   │   ├── api/          # API routes
+│   │   │   └── routes/
+│   │   │       ├── verses.py
+│   │   │       ├── morphology.py
+│   │   │       ├── chat.py
+│   │   │       └── dictionary.py
+│   │   ├── core/         # Configuration
+│   │   ├── models/       # Pydantic models
+│   │   ├── services/     # Business logic
+│   │   │       ├── morphology.py
+│   │   │       ├── gemini.py
+│   │   │       ├── rag.py
+│   │   │       └── vector_store.py
+│   │   └���─ utils/       # Helpers
+│   │   └── main.py
+│   ├── tests/           # Pytest tests
+│   ├── scripts/        # Database population
+│   ├── requirements.txt
+│   └── Dockerfile
+├── frontend/            # Expo React Native
+│   ├── app/          # Expo Router screens
+│   │   └── (tabs)/
+│   │       ├── index.tsx
+│   │       ├── analyzer.tsx
+│   │       ├── explore.tsx
+│   │       ├── chat.tsx
+│   │       └── settings.tsx
+│   ├── src/
+│   │   ├── components/
+│   │   ├── services/
+│   │   ├── hooks/
+│   │   ├── utils/
+│   │   ├── types/
+│   │   └── constants/
+│   ├── package.json
+│   └── app.json
+├── dataset/           # Quranic corpus
+│   └── quran_dataset.csv
+├── docs/             # Documentation
+│   └── jawhar_project_report.tex
+├── chroma_data/      # Vector database
+├── AGENTS.md
+└── README.md
+\end{verbatim}
+\end{scriptsize}
+\end{figure}
+
+\section{Technology Stack Summary}
+
+Table~\ref{tab:tech-stack} provides a summary of the technology stack used in the project.
+
+\begin{table}[H]
+\caption{Technology Stack Summary}
+\label{tab:tech-stack}
+\begin{tabular}{|l|l|p{5cm}|}
+\toprule
+\textbf{Category} & \textbf{Technology} & \textbf{Purpose} \\
+\midrule
+Backend Framework & FastAPI & REST API service \\
+NLP Library & CAMeL Tools & Arabic morphological analysis \\
+Vector Database & ChromaDB & Semantic search storage \\
+AI Model & Gemini Flash & Generative AI tutoring \\
+Frontend & React Native (Expo) & Mobile application \\
+Deployment & Hugging Face Spaces & Backend hosting \\
+Language (BE) & Python 3.12 & Backend implementation \\
+Language (FE) & TypeScript & Frontend implementation \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Glossary}
+
+\begin{table}[H]
+\caption{Glossary of Terms}
+\label{tab:glossary}
+\begin{tabular}{|l|p{10cm}|}
+\toprule
+\textbf{Term} & \textbf{Definition} \\
+\midrule
+Sarf (الصرف) & Arabic morphological science dealing with word formation and root derivation \\
+\midrule
+I'rab (الإعراب) & Arabic grammatical case marking indicating syntactic function \\
+\midrule
+Wazan (وزن) & Morphological pattern applied to roots to generate words \\
+\midrule
+Root (جذر) & The consonantal base of an Arabic word (typically 3 or 4 letters) \\
+\midrule
+POS & Part-of-speech classification (Noun, Verb, Particle) \\
+\midrule
+RAG & Retrieval-Augmented Generation - AI architecture combining search with generation \\
+\midrule
+RTL & Right-To-Left text direction (Arabic script) \\
+\midrule
+LTR & Left-To-Right text direction (English script) \\
+\midrule
+ChromaDB & Vector database for semantic similarity search \\
+\midrule
+CAMeL Tools & Arabic NLP library from Carnegie Mellon Qatar \\
+\midrule
+Expo & Framework for building React Native apps \\
+\midrule
+APK & Android Package - compiled Android application \\
+\midrule
+FastAPI & Python web framework for REST APIs \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \end{document}
