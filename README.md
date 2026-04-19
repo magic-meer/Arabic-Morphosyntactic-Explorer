@@ -11,6 +11,7 @@
 <div align="center">
 
 [![Backend Deployment](https://img.shields.io/badge/HF%20Spaces-Backend-blue?logo=huggingface)](https://huggingface.co/spaces/meherali/jawhar)
+[![Medium Article](https://img.shields.io/badge/Medium-Article-black?logo=medium)](https://medium.com/@meherali.meer/building-jawhar-an-ai-powered-pedagogical-tutor-for-classical-arabic-quranic-morphosyntax-63fa26786727)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 </div>
