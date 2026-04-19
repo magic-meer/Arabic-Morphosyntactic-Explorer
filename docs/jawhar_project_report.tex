@@ -1,7 +1,10 @@
+% IMPORTANT: You MUST compile this in Overleaf using the "XeLaTeX" engine. 
+% (Menu -> Compiler -> XeLaTeX)
+
 \documentclass[11pt, a4paper]{article}
 
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
+\usepackage{fontspec}
+\usepackage{polyglossia}
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{geometry}
@@ -14,6 +17,13 @@
 \usepackage{makecell}
 \usepackage{listings}
 \usepackage{array}
+
+% Language setup
+\setmainlanguage{english}
+\setotherlanguage{arabic}
+
+% Font setup (Amiri is available on Overleaf)
+\newfontfamily\arabicfont[Script=Arabic]{Amiri}
 
 % Set page margins
 \geometry{
@@ -35,11 +45,10 @@
 
 % Colors
 \definecolor{primaryGold}{HTML}{FFD33D}
-\definecolor{backgroundDark}{HTML}{121212}
 
 \title{
     \vspace{2cm}
-    \textbf{\huge Jawhar (جوهر)} \\
+    \textbf{\huge Jawhar (\textarabic{جوهر})} \\
     \vspace{0.5cm}
     \Large Arabic Morphosyntactic Explorer \\
     \vspace{1cm}
@@ -58,7 +67,7 @@
 \pagenumbering{roman}
 \begin{abstract}
 \noindent 
-The Arabic language, particularly the Classical Arabic found in the Quranic corpus, possesses a highly complex morphosyntactic structure. Traditional tools for linguistic analysis are often disconnected, lacking either depth in Natural Language Processing (NLP) or an intuitive user interface for learners. This report details the development of \textbf{Jawhar (جوهر)}, an AI-driven Arabic Morphosyntactic Explorer. Jawhar bridges the gap between advanced computational linguistics and pedagogical application by integrating CAMeL Tools for precise morphological parsing, ChromaDB for semantic retrieval operations, and Google's Gemini Flash AI architecture for context-aware tutoring. The system employs a cross-platform React Native frontend and a FastAPI backend deployed on Hugging Face Spaces. The resulting platform enables users to semantically search the corpus, interact deeply with word-level morphology (Sarf), and receive grammatical and pedagogical insights (I'rab) through a seamless, robust interface.
+The Arabic language, particularly the Classical Arabic found in the Quranic corpus, possesses a highly complex morphosyntactic structure. Traditional tools for linguistic analysis are often disconnected, lacking either depth in Natural Language Processing (NLP) or an intuitive user interface for learners. This report details the development of \textbf{Jawhar (\textarabic{جوهر})}, an AI-driven Arabic Morphosyntactic Explorer. Jawhar bridges the gap between advanced computational linguistics and pedagogical application by integrating CAMeL Tools for precise morphological parsing, ChromaDB for semantic retrieval operations, and Google's Gemini Flash AI architecture for context-aware tutoring. The system employs a cross-platform React Native frontend and a FastAPI backend deployed on Hugging Face Spaces. The resulting platform enables users to semantically search the corpus, interact deeply with word-level morphology (Sarf), and receive grammatical and pedagogical insights (I'rab) through a seamless, robust interface.
 \end{abstract}
 
 \tableofcontents
@@ -69,7 +78,7 @@ The Arabic language, particularly the Classical Arabic found in the Quranic corp
 \section{Introduction}
 
 \subsection{Motivation}
-Classical Arabic is a highly inflected, derivational language, where a vast vocabulary is generated from trilateral or quadrilateral root consonants through defined morphological templates (Awzan/أوزان). For students and researchers, decoding this morphology (Sarf) and the syntactic rules determining word endings (I'rab) is traditionally a steep learning curve. While tools exist that serve NLP researchers, few offer end-user interfaces dedicated to pedagogical improvement, semantic search capabilities, and instant AI tutoring.
+Classical Arabic is a highly inflected, derivational language, where a vast vocabulary is generated from trilateral or quadrilateral root consonants through defined morphological templates (\textarabic{Awzan/أوزان}). For students and researchers, decoding this morphology (Sarf) and the syntactic rules determining word endings (\textarabic{I'rab/إعراب}) is traditionally a steep learning curve. While tools exist that serve NLP researchers, few offer end-user interfaces dedicated to pedagogical improvement, semantic search capabilities, and instant AI tutoring.
 
 \subsection{Project Objectives}
 The Jawhar project was conceptualized with the following core objectives:
