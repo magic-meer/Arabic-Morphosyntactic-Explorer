@@ -1,3 +1,12 @@
+---
+title: Jawhar - Arabic Morphosyntactic Explorer
+emoji: 📖
+colorFrom: indigo
+colorTo: blue
+sdk: docker
+pinned: false
+---
+
 # 📖 Arabic Morphosyntactic Explorer (A-AME)
 
 [![Backend Deployment](https://img.shields.io/badge/HF%20Spaces-Backend-blue?logo=huggingface)](https://huggingface.co/spaces/meherali/jawhar)
