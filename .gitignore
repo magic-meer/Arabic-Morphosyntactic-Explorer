@@ -56,7 +56,9 @@ data/
 *.db
 *.sqlite
 *.sqlite3
-/chroma_data/
+chroma_data/
+dataset/extracted/
+dataset/raw/
 
 # Node/Frontend
 node_modules/
