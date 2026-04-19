@@ -15,6 +15,8 @@ import { MorphologyWord } from '@/types/morphology';
 import { theme } from '@/constants/theme';
 import { Word } from '@/components/Word';
 
+import { formatFeatureValue, FEATURE_LABELS } from '@/utils/morphology';
+
 export default function AnalyzerScreen() {
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -96,9 +98,18 @@ export default function AnalyzerScreen() {
             <View style={styles.analysisPanel}>
               <Text style={styles.analysisTitle}>Analysis / تحليل: {selectedWord.form}</Text>
               <View style={styles.detailsContainer}>
-                <DetailRow label="Root / الجذر" value={selectedWord.features.root || ''} isArabic />
-                <DetailRow label="Lemma / اللمة" value={selectedWord.features.lemma || ''} isArabic />
-                <DetailRow label="POS Tag / نوع الكلمة" value={selectedWord.features.pos || selectedWord.tag} />
+                {Object.entries(FEATURE_LABELS).map(([key, label]) => {
+                  const value = selectedWord.features[key as keyof typeof selectedWord.features];
+                  if (!value || value === 'na' || value === 'N/A') return null;
+                  return (
+                    <DetailRow 
+                      key={key} 
+                      label={label} 
+                      value={formatFeatureValue(key, value)} 
+                      isArabic={key === 'diac' || key === 'root' || key === 'd3seg'} 
+                    />
+                  );
+                })}
               </View>
             </View>
           )}

@@ -13,7 +13,7 @@ import { ChatTutor } from '@/components/ChatTutor';
 import { getVerse, analyzeWord } from '@/services/api';
 import { WordInfo } from '@/types/morphology';
 import { theme } from '@/constants/theme';
-import { formatFeatureValue } from '@/utils/morphology';
+import { formatFeatureValue, FEATURE_LABELS } from '@/utils/morphology';
 import { usePreferences } from '@/context/PreferencesContext';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -46,7 +46,7 @@ export default function VerseDetailScreen() {
     );
     setAnalysis(found || null);
 
-    // Call API for AI explanation
+    // Call API for AI explanation (Sarf is already pre-fetched in getVerse)
     setAiLoading(true);
     setAiExplanation(null);
     try {
@@ -110,13 +110,18 @@ export default function VerseDetailScreen() {
             <Text style={styles.analysisTitle}>Analysis / تحليل: {selectedWord}</Text>
             {analysis ? (
               <View style={styles.detailsContainer}>
-                <DetailRow label="Root / الجذر" value={analysis.root || ''} isArabic />
-                <DetailRow label="Lemma / اللمة" value={analysis.lemma || ''} isArabic />
-                <DetailRow label="POS / نوع الكلمة" value={formatFeatureValue('pos', analysis.features.pos || analysis.tag)} />
-                <DetailRow label="Gender / الجنس" value={formatFeatureValue('gen', analysis.features.gen || '')} />
-                <DetailRow label="Number / العدد" value={formatFeatureValue('num', analysis.features.num || '')} />
-                <DetailRow label="Case / الحالة" value={formatFeatureValue('cas', analysis.features.cas || '')} />
-                {analysis.features.gloss && <DetailRow label="Meaning / المعنى" value={analysis.features.gloss} />}
+                {Object.entries(FEATURE_LABELS).map(([key, label]) => {
+                  const value = analysis.features[key as keyof typeof analysis.features];
+                  if (!value || value === 'na' || value === 'N/A') return null;
+                  return (
+                    <DetailRow 
+                      key={key} 
+                      label={label} 
+                      value={formatFeatureValue(key, value)} 
+                      isArabic={key === 'diac' || key === 'root' || key === 'd3seg' || key === 'lex'} 
+                    />
+                  );
+                })}
               </View>
             ) : (
               <Text style={styles.noAnalysisText}>

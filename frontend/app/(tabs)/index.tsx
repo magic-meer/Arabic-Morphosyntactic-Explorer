@@ -13,25 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { analyzeWord, WordAnalysisResponse } from '@/services/api';
 import { theme } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
-import { formatFeatureValue } from '@/utils/morphology';
-
-const FEATURE_LABELS: Record<string, string> = {
-  diac: 'Diacritized / مُشَكَّل',
-  root: 'Root / الجذر',
-  lex: 'Lemma / المصدر',
-  pos: 'POS / نوع الكلمة',
-  pattern: 'Pattern / الوزن',
-  gloss: 'Meaning / المعنى',
-  gen: 'Gender / الجنس',
-  num: 'Number / العدد',
-  cas: 'Case / الحالة',
-  mod: 'Mood / الصيغة',
-  vox: 'Voice / المبني',
-  asp: 'Aspect / الزمن',
-  per: 'Person / الشخص',
-  d3seg: 'Segmentation / التقطيع',
-  bw: 'Buckwalter',
-};
+import { formatFeatureValue, FEATURE_LABELS } from '@/utils/morphology';
 
 export default function HomeScreen() {
   const { aiModel } = usePreferences();

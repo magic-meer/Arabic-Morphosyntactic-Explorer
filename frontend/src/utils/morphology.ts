@@ -1,3 +1,21 @@
+export const FEATURE_LABELS: Record<string, string> = {
+  diac: 'Diacritized / مُشَكَّل',
+  root: 'Root / الجذر',
+  lex: 'Lemma / المصدر',
+  pos: 'POS / نوع الكلمة',
+  pattern: 'Pattern / الوزن',
+  gloss: 'Meaning / المعنى',
+  gen: 'Gender / الجنس',
+  num: 'Number / العدد',
+  cas: 'Case / الحالة',
+  mod: 'Mood / الصيغة',
+  vox: 'Voice / المبني',
+  asp: 'Aspect / الزمن',
+  per: 'Person / الشخص',
+  d3seg: 'Segmentation / التقطيع',
+  bw: 'Buckwalter',
+};
+
 export const formatFeatureValue = (key: string, value: string) => {
   if (!value || value === 'na' || value === 'N/A') return value;
   
