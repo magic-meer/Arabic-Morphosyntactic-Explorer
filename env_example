@@ -10,3 +10,6 @@ API_PORT=8000
 
 # Logging
 LOG_LEVEL=INFO
+ 
+ # Frontend (Expo) Configuration
+ EXPO_PUBLIC_API_URL=https://meherali-jawhar.hf.space/api/v1
