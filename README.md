@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/app_screenshots/main_screen.jpeg" alt="Jawhar Logo" width="200">
+  <img src="jawhar_logo.png" alt="Jawhar Logo" width="150" height="150">
 
   # Jawhar (جوهر) - Arabic Morphosyntactic Explorer
 
