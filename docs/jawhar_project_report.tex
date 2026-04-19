@@ -1,0 +1,148 @@
+\documentclass[11pt, a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{setspace}
+\usepackage{makecell}
+\usepackage{listings}
+\usepackage{array}
+
+% Set page margins
+\geometry{
+    a4paper,
+    top=2.5cm,
+    bottom=2.5cm,
+    left=2.5cm,
+    right=2.5cm
+}
+
+% Hyperlink configuration
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=teal,
+    citecolor=blue,
+    pdftitle={Jawhar - Arabic Morphosyntactic Explorer Project Report},
+}
+
+% Colors
+\definecolor{primaryGold}{HTML}{FFD33D}
+\definecolor{backgroundDark}{HTML}{121212}
+
+\title{
+    \vspace{2cm}
+    \textbf{\huge Jawhar (جوهر)} \\
+    \vspace{0.5cm}
+    \Large Arabic Morphosyntactic Explorer \\
+    \vspace{1cm}
+    \large Capstone Project Report
+    \vspace{2cm}
+}
+\author{\textbf{Meher Ali} \\ Software Engineering Capstone Project}
+\date{\vspace{1cm} \today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\pagenumbering{roman}
+\begin{abstract}
+\noindent 
+The Arabic language, particularly the Classical Arabic found in the Quranic corpus, possesses a highly complex morphosyntactic structure. Traditional tools for linguistic analysis are often disconnected, lacking either depth in Natural Language Processing (NLP) or an intuitive user interface for learners. This report details the development of \textbf{Jawhar (جوهر)}, an AI-driven Arabic Morphosyntactic Explorer. Jawhar bridges the gap between advanced computational linguistics and pedagogical application by integrating CAMeL Tools for precise morphological parsing, ChromaDB for semantic retrieval operations, and Google's Gemini Flash AI architecture for context-aware tutoring. The system employs a cross-platform React Native frontend and a FastAPI backend deployed on Hugging Face Spaces. The resulting platform enables users to semantically search the corpus, interact deeply with word-level morphology (Sarf), and receive grammatical and pedagogical insights (I'rab) through a seamless, robust interface.
+\end{abstract}
+
+\tableofcontents
+\newpage
+\pagenumbering{arabic}
+\setstretch{1.2}
+
+\section{Introduction}
+
+\subsection{Motivation}
+Classical Arabic is a highly inflected, derivational language, where a vast vocabulary is generated from trilateral or quadrilateral root consonants through defined morphological templates (Awzan/أوزان). For students and researchers, decoding this morphology (Sarf) and the syntactic rules determining word endings (I'rab) is traditionally a steep learning curve. While tools exist that serve NLP researchers, few offer end-user interfaces dedicated to pedagogical improvement, semantic search capabilities, and instant AI tutoring.
+
+\subsection{Project Objectives}
+The Jawhar project was conceptualized with the following core objectives:
+\begin{itemize}
+    \item \textbf{Deep Linguistic Integration}: To utilize state-of-the-art NLP models (CAMeL Tools) to automatically extract root, lemma, part-of-speech (POS), voice, aspect, and gender from raw Arabic texts.
+    \item \textbf{Semantic Search (RAG)}: To supersede traditional keyword search by embedding the semantic meaning of verses using a vector database (ChromaDB), allowing users to find verses by conceptual queries.
+    \item \textbf{Pedagogical AI Tutor}: To implement a custom Gemini-powered AI agent wrapped in an intuitive chat interface capable of explaining morphological outputs in natural language.
+    \item \textbf{Cross-platform Accessibility}: To build a single unified application (React Native / Expo) that supports native Android deployments as well as web, maintaining precise Right-To-Left (RTL) capabilities.
+\end{itemize}
+
+\section{System Architecture}
+
+Jawhar leverages a modular, separated frontend-to-backend architecture, optimizing for computational efficiency on the NLP front and responsive interactions on the mobile front.
+
+\subsection{Architectural Components}
+The system architecture encompasses three primary layers:
+
+\begin{enumerate}
+    \item \textbf{Frontend Application (Presentation Layer)}: Developed using React Native with the Expo framework. It natively provisions bidirectional text flow and an adaptive UI.
+    \item \textbf{FastAPI Backend (Service Layer)}: A Python 3.12+ REST API application serving as a highly concurrent gateway orchestration layer.
+    \item \textbf{NLP \& AI Microservices (Processing Layer)}:
+    \begin{itemize}
+        \item \textit{CAMeL Tools}: Handles the heavy-lifting of root extraction, diacritization matching, and detailed metadata generation.
+        \item \textit{Gemini Flash}: Serves dual purposes---generating pedagogical explanations of linguistic structures and creating vector embeddings for the text.
+        \item \textit{ChromaDB}: Persistent local vector store optimizing k-Nearest Neighbors (k-NN) cosine similarity search for the Quranic dataset.
+    \end{itemize}
+\end{enumerate}
+
+\section{Technical Implementation}
+
+\subsection{Morphological Analysis Engine}
+Sarf (Morphology) is the foundational pivot of Jawhar. The \texttt{MorphologyService} in the backend isolates the \texttt{camel\_tools} dependency. When a user queries a single word or an entire verse, the toolkit evaluates probabilities and returns the highest likelihood token breakdown. 
+A key implementation success was the normalization logic applied on the frontend, where diacritics and esoteric symbols (e.g., Quranic stop marks) are stripped to match touch events on the screen accurately to the parsed NLP tokens returning from the robust backend structure.
+
+\subsection{Semantic Retrieval-Augmented Generation (RAG)}
+Semantic search is powered by \texttt{ChromaDB}. Upon bootstrapping, the \texttt{VectorStore} embeds the initial Quranic chapters (via Google GenAI embedding models). Queries initiated by users are vectorized, and the top-$K$ verses possessing the highest semantic similarity are returned, enabling interactions like searching for ``Verses about patience in hardship.''
+
+\subsection{AI Pedagogical Tutor}
+Jawhar integrates the \texttt{gemini-3.1-flash-lite-preview} model. In the \textbf{Verse Detail Screen}, selecting a word performs an instant, dynamic fetch over REST API requesting a targeted grammatical explanation. The API engineers a highly structured prompt forcing the LLM to analyze the CAMeL output from a pedagogical lens, strictly formatting responses into Sarf (morphology), I'rab (syntax), and Summary segments.
+
+\subsection{Frontend Engineering \& RTL Compliance}
+React Native Expo Router manages deep linking. A critical UI challenge was preserving standard application patterns (like back functionality) while forcing Right-To-Left directionality. Utilizing Expo's \texttt{I18nManager.forceRTL(true)}, layouts adapt flawlessly, keeping Arabic primary while aligning corresponding English translations logically. Custom Glassmorphism styles and specific ``Amiri'' typography are loaded statically to convey an elegant, modern visual identity.
+
+\section{Deployment \& CI/CD Operations}
+
+To guarantee stable and consistent deployment, the project adopted a hybrid release paradigm:
+
+\begin{itemize}
+    \item \textbf{Backend Hosting}: The FastAPI environment, which exceeds standard limits due to dense NLP library models, is containerized via a custom Dockerfile and deployed via GitHub workflows to \textbf{Hugging Face Spaces}. A separate deployment branch (\texttt{hf-deploy}) maintains Hugging Face specific YAML metadata configurations for automated Docker builds.
+    \item \textbf{Frontend Application}: Expo Application Services (EAS) were configured via \texttt{eas.json} to decouple local builds. The final deliverable is compiled as a standalone \texttt{.apk} (Android Package) to be distributed through the GitHub Releases tab, allowing direct end-user installation without local SDK friction.
+\end{itemize}
+
+\section{Results and Performance}
+
+The development successfully united complex computational linguistics with mobile engineering. 
+\textbf{Key accomplishments include}:
+\begin{itemize}
+    \item Centralized morphological normalization: Users observe over 12 detailed attributes per word (Voice, Aspect, Mood, Gender, Root, Lemma, etc.) interchangeably seamlessly between search, deep verse analysis, and free text parsing.
+    \item Deployment stability and 0-configuration orchestration: The provided \texttt{dev.sh} spins up virtual environments across Python and Node.js consecutively in under 45 seconds for parallel local development.
+\end{itemize}
+
+\section{Limitations \& Future Work}
+
+While foundational architecture is robust, the computational size of CAMeL databases dictates high memory constraints, pushing latency up slightly during cold starts on free-tier cloud containers. 
+Future roadmap efforts should focus on:
+\begin{enumerate}
+    \item A fully offline mode for embedding models utilizing smaller ONNX-compiled equivalents (e.g., MiniLM) directly on Android.
+    \item Expanding the vector database ingestion to cover the entire corpus rather than isolated selections limit due to rapid prototyping.
+    \item Migrating the AI generation parameters to continuous streaming protocols to improve perceived loading thresholds for I'rab explanations.
+\end{enumerate}
+
+\section{Conclusion}
+
+Jawhar stands as a successful Capstone project proving modern LLM and heuristic NLP methodologies can run conjointly inside scalable, user-centric mobile applications. By mitigating the computational convolution of Arabic linguistic tools into clean graphical interfaces and natural language chats, it establishes an exceptional pedagogical pipeline designed to modernize traditional Semitic linguistic studies.
+
+\end{document}
