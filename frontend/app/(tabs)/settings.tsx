@@ -48,7 +48,6 @@ export default function SettingsScreen() {
         
         {[
           { id: 'gemini-3.1-flash-lite-preview', label: 'Gemini 3.1 Flash Lite', note: 'Balanced & Fast (Default)' },
-          { id: 'gemini-3.0-flash', label: 'Gemini 3.0 Flash', note: 'Higher Intelligence' },
           { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', note: 'Stable Performance' },
           { id: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash Lite', note: 'Ultra Low Latency' }
         ].map((model) => (
