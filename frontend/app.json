@@ -48,8 +48,9 @@
     "extra": {
       "supportsRTL": true,
       "eas": {
-        "projectId": "jawhar"
-      }
+        "projectId": "b8ba35f1-c48d-474e-b33c-bb18a49218ff"
+      },
+      "router": {}
     }
   }
 }
