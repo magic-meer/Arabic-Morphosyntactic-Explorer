@@ -38,9 +38,6 @@
 | :---: | :---: | :---: | :---: |
 | <img src="docs/app_screenshots/main_screen.jpeg" width="180" alt="Main Dashboard"/> | <img src="docs/app_screenshots/analyze_text_screen.jpeg" width="180" alt="Analyze Text"/> | <img src="docs/app_screenshots/explore_screen.jpeg" width="180" alt="Explore"/> | <img src="docs/app_screenshots/verse_detail_screen.jpeg" width="180" alt="Verse Detail"/> |
 
-| Settings | AI Tutor Chat | Word Analysis | Camel Analysis |
-| :---: | :---: | :---: | :---: |
-| <img src="docs/app_screenshots/setting_screen.jpeg" width="180" alt="Settings"/> | <img src="docs/app_screenshots/ai_totor_screen.jpeg" width="180" alt="AI Tutor"/> | <img src="docs/app_screenshots/verse_detail[word_analysis].jpeg" width="180" alt="Word Analysis"/> | <img src="docs/app_screenshots/main_screen[camel_tool_analysis].jpeg" width="180" alt="Camel Analysis"/> |
 
 ---
 
