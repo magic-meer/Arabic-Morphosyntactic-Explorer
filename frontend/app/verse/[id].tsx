@@ -36,15 +36,30 @@ export default function VerseDetailScreen() {
     return t.replace(/[﴿﴾\s\u06D6-\u06DC\u06DF-\u06E8\u06EA-\u06ED]/g, '');
   };
 
-  const handleWordPress = (wordText: string) => {
+  const [loadingWordDetails, setLoadingWordDetails] = useState(false);
+
+  const handleWordPress = async (wordText: string) => {
     setSelectedWord(wordText);
-    const normalizedTarget = normalizeForMatch(wordText);
-    
-    // Try exact match first, then normalized match
-    const found = verseAnalysis.find(a => 
-      a.form === wordText || normalizeForMatch(a.form) === normalizedTarget
-    );
-    setAnalysis(found || null);
+    setAnalysis(null);
+    setLoadingWordDetails(true);
+
+    try {
+      const response = await analyzeWord(wordText);
+      if (response.analyses && response.analyses.length > 0) {
+        const first = response.analyses[0];
+        setAnalysis({
+          form: wordText,
+          tag: (first.pos as string) || '',
+          lemma: (first.lex as string) || (first.lemma as string) || '',
+          root: (first.root as string) || '',
+          features: first as Record<string, string>
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch word details', error);
+    } finally {
+      setLoadingWordDetails(false);
+    }
   };
 
   useEffect(() => {
@@ -96,7 +111,10 @@ export default function VerseDetailScreen() {
         {selectedWord && (
           <View style={styles.analysisPanel}>
             <Text style={styles.analysisTitle}>Analysis / تحليل: {selectedWord}</Text>
-            {analysis ? (
+            
+            {loadingWordDetails ? (
+              <ActivityIndicator color={theme.colors.primary} style={styles.loader} />
+            ) : analysis ? (
               <View style={styles.detailsContainer}>
                 {Object.entries(FEATURE_LABELS).map(([key, label]) => {
                   const value = analysis.features[key as keyof typeof analysis.features];
@@ -113,7 +131,7 @@ export default function VerseDetailScreen() {
               </View>
             ) : (
               <Text style={styles.noAnalysisText}>
-                {loading ? 'Analyzing... / جارٍ التحليل' : 'No detailed analysis found / لا يوجد تحليل مفصل'}
+                No detailed analysis found / لا يوجد تحليل مفصل
               </Text>
             )}
           </View>
