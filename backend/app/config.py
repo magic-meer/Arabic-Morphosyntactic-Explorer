@@ -13,12 +13,16 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=("../.env", ".env"),
         env_file_encoding="utf-8",
+        extra="ignore",
     )
 
     # API settings
     api_host: str = Field(default="0.0.0.0", description="API server host")
     api_port: int = Field(default=8000, description="API server port")
     log_level: str = Field(default="INFO", description="Logging level")
+    backend_public_api_url: Optional[str] = Field(
+        default=None, description="Public URL for the API"
+    )
 
     # Gemini settings
     gemini_api_key: str = Field(..., description="Gemini API key")

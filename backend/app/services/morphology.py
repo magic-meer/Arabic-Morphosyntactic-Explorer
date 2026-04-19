@@ -157,7 +157,7 @@ class MorphologyService:
         Returns:
             Dictionary containing:
             - text: Original text
-            - words: List of word analysis results
+            - words: List of word analysis results (best candidate for each)
             - tokens_count: Number of tokens analyzed
         """
         # Split text into words (space-separated)
@@ -166,8 +166,17 @@ class MorphologyService:
         words = []
         for token in tokens:
             if token.strip():  # Skip empty tokens
-                analysis = self.analyze_word(token)
-                words.append(analysis)
+                analyses = self.analyze_word(token)
+                # Take the first candidate as the most likely one
+                best_candidate = analyses[0] if analyses else {"form": token, "error": "No analysis"}
+                
+                # Ensure the structure matches what the route expects
+                # Specifically, it expects 'features' key for _convert_features
+                if "error" not in best_candidate:
+                    merged = {"form": token, "tag": best_candidate.get("pos", ""), "features": best_candidate}
+                    words.append(merged)
+                else:
+                    words.append({"form": token, "tag": "UNK", "features": {}})
 
         return {
             "text": text,
