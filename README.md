@@ -1,8 +1,8 @@
 <div align="center">
-  <img src="jawhar_logo.png" alt="Jawhar Logo" width="150" height="150">
-  
+  <img src="docs/app_screenshots/main_screen.jpeg" alt="Jawhar Logo" width="200">
+
   # Jawhar (جوهر) - Arabic Morphosyntactic Explorer
-  
+
   **An AI-driven pedagogical tutor for Classical Arabic**
 </div>
 
@@ -11,56 +11,55 @@
 <div align="center">
 
 [![Backend Deployment](https://img.shields.io/badge/HF%20Spaces-Backend-blue?logo=huggingface)](https://huggingface.co/spaces/meherali/jawhar)
-[![Frontend Deployment](https://img.shields.io/badge/Vercel-Frontend-black?logo=vercel)](#)
-[![Medium Article](https://img.shields.io/badge/Medium-Article-black?logo=medium)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 </div>
 
 <div align="center">
-  
+
   ![React Native](https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
   ![Expo](https://img.shields.io/badge/expo-1C1E24?style=for-the-badge&logo=expo&logoColor=#D04A37)
   ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
   ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
   ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
   ![Gemini AI](https://img.shields.io/badge/Gemini_AI-4285F4?style=for-the-badge&logo=google&logoColor=white)
-  
+
 </div>
 
-## 📖 Overview
+## Overview
 
 **Jawhar (جوهر)** is an advanced, AI-driven pedagogical tool designed for exploring the classical Arabic corpus (specifically the Quran). The platform offers deep morphological analysis, semantic search capabilities, and an interactive AI tutor designed to facilitate learning. Leveraging state-of-the-art NLP tools like CAMeL and Google's Gemini Flash, Jawhar breaks down complex Arabic words into digestible morphological and syntactic components.
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
-*Replace the placeholders below with actual screenshots of the application.*
-
-| Main Dashboard | Morphological Analysis | Verse Exploration | AI Tutor Chat |
+| Main Dashboard | Analyze Text | Explore Verses | Verse Detail |
 | :---: | :---: | :---: | :---: |
-| <img src="screenshots/main_dashboard_placeholder.png" width="200" alt="Main Dashboard"/> | <img src="screenshots/morphology_placeholder.png" width="200" alt="Morphological Analysis"/> | <img src="screenshots/verse_placeholder.png" width="200" alt="Verse Detail"/> | <img src="screenshots/chat_placeholder.png" width="200" alt="AI Tutor Chat"/> |
+| <img src="docs/app_screenshots/main_screen.jpeg" width="180" alt="Main Dashboard"/> | <img src="docs/app_screenshots/analyze_text_screen.jpeg" width="180" alt="Analyze Text"/> | <img src="docs/app_screenshots/explore_screen.jpeg" width="180" alt="Explore"/> | <img src="docs/app_screenshots/verse_detail_screen.jpeg" width="180" alt="Verse Detail"/> |
+
+| Settings | AI Tutor Chat | Word Analysis | Camel Analysis |
+| :---: | :---: | :---: | :---: |
+| <img src="docs/app_screenshots/setting_screen.jpeg" width="180" alt="Settings"/> | <img src="docs/app_screenshots/ai_totor_screen.jpeg" width="180" alt="AI Tutor"/> | <img src="docs/app_screenshots/verse_detail[word analysis].jpeg" width="180" alt="Word Analysis"/> | <img src="docs/app_screenshots/main_screen[camel tool analysis].jpeg" width="180" alt="Camel Analysis"/> |
 
 ---
 
-## ✨ Features
+## Features
 
-- **🧩 Deep Morphological Analysis (Sarf)**: Interactive word-by-word breakdown showing Root, Lemma, POS tags, Person, Voice, Aspect, Case, and meaning using CAMeL Tools.
-- **🔍 Semantic Search**: Search the Quranic corpus using a highly specialized Vector DB (ChromaDB) RAG pipeline.
-- **🤖 AI Pedagogical Tutor (Jawhar AI)**: Engage with a Gemini-powered AI tutor that provides I'rab (syntax) and Sarf (morphological) explanations tailored to your selections.
-- **🌍 Bilingual & RTL**: A perfectly localized UI in both Arabic and English with seamless Right-to-Left (RTL) transition.
-- **🎨 Custom Modern UI**: A premium dark-mode interface embellished with Glassmorphism and subtle animations.
+- **Deep Morphological Analysis (Sarf)**: Interactive word-by-word breakdown showing Root, Lemma, POS tags, Person, Voice, Aspect, Case, and meaning using CAMeL Tools.
+- **Semantic Search**: Search the Quranic corpus using a highly specialized Vector DB (ChromaDB) RAG pipeline.
+- **AI Pedagogical Tutor (Jawhar AI)**: Engage with a Gemini-powered AI tutor that provides I'rab (syntax) and Sarf (morphological) explanations tailored to your selections.
+- **Bilingual and RTL**: A perfectly localized UI in both Arabic and English with seamless Right-to-Left (RTL) transition.
+- **Custom Modern UI**: A premium dark-mode interface embellished with Glassmorphism and subtle animations.
 
 ---
 
-## 🏗 System Architecture
+## System Architecture
 
 The project employs a modern separated frontend/backend architecture, integrating cutting edge AI and NLP components:
 
 ```mermaid
 graph TD
-    %% Frontend Layer
     subgraph Frontend [Mobile/Web App - Expo React Native]
         UI[User Interface]
         State[State Management]
@@ -68,7 +67,6 @@ graph TD
         APIClient[API Client service]
     end
 
-    %% Backend Layer
     subgraph Backend [FastAPI Server]
         API[REST API Routes]
         Morph[CAMeL Tools NLP Engine]
@@ -77,24 +75,23 @@ graph TD
         Data[Quranic Dataset]
     end
 
-    %% Connections
     UI <--> State
     State <--> APIClient
     TutorUI <--> APIClient
-    
+
     APIClient <--> |HTTPS / JSON| API
-    
+
     API --> Morph
     API --> RAG
     API --> Gemini
     API --> Data
-    
+
     RAG -.->|Contextual Data| Gemini
 ```
 
 ---
 
-## 📁 Directory Structure
+## Directory Structure
 
 ```text
 jawhar/
@@ -116,7 +113,7 @@ jawhar/
 
 ---
 
-## 🚀 Deployment
+## Deployment
 
 The project is designed with seamless deployment to optimal environments.
 
@@ -135,13 +132,13 @@ Be sure to set the `EXPO_PUBLIC_API_URL` to your production Hugging Face Spaces 
 
 ---
 
-## 🛠️ Local Setup & Development
+## Local Setup and Development
 
 Do you want to run Jawhar locally on your machine?
 
 ### Prerequisites
 - **Python 3.12+**
-- **Node.js 18+** & **pnpm**
+- **Node.js 18+** and **pnpm**
 - **Gemini API Key**: Grab one from [Google AI Studio](https://aistudio.google.com/)
 
 ### Step-by-Step Configuration
@@ -165,7 +162,7 @@ Do you want to run Jawhar locally on your machine?
    *This script orchestrates both the backend (Uvicorn port `8000`) and the frontend Expo server simultaneously.*
 
 4. **Running Individually:**
-   - **Backend:** 
+   - **Backend:**
      ```bash
      cd backend && pip install -r requirements.txt
      uvicorn app.main:app --reload --port 8000
@@ -178,14 +175,14 @@ Do you want to run Jawhar locally on your machine?
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are more than welcome!
 Feel free to open an issue or fork the repository and submit a Pull Request.
 
 ---
 
-## 📜 License
+## License
 
 [MIT License](https://opensource.org/licenses/MIT)
 
