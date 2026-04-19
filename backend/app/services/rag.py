@@ -116,6 +116,7 @@ class RAGPipeline:
         user_message: str,
         include_verses: bool = True,
         specific_verses: Optional[list[dict[str, Any]]] = None,
+        model_name: Optional[str] = None,
     ) -> dict[str, Any]:
         """Main RAG pipeline: search + generate response.
 
@@ -124,6 +125,7 @@ class RAGPipeline:
             include_verses: Whether to search for relevant verses (default: True).
             specific_verses: Optional list of specific verses to use as context.
                            If provided, ignore include_verses and use these.
+            model_name: Optional name of the Gemini model to use.
 
         Returns:
             Dictionary containing:
@@ -131,7 +133,7 @@ class RAGPipeline:
             - context_verses: List of verses used as context
             - cached: Whether context was cached (not currently implemented)
         """
-        logger.debug(f"Processing query: {user_message[:50]}...")
+        logger.debug(f"Processing query with model {model_name or 'default'}: {user_message[:50]}...")
 
         # Determine which verses to use
         if specific_verses is not None:
@@ -148,6 +150,7 @@ class RAGPipeline:
             response = self._gemini_service.generate_response(
                 user_message=user_message,
                 context_verses=context_verses,
+                model_name=model_name,
                 cached=False,
             )
 

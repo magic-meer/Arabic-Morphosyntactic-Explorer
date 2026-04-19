@@ -186,7 +186,9 @@ async def analyze_word_endpoint(
             )
 
             ai_explanation = gemini.generate_response(
-                user_message=prompt, context_verses=[]
+                user_message=prompt, 
+                context_verses=[],
+                model_name=request.get("model")
             )
     except Exception as e:
         import logging

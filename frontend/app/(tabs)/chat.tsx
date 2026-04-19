@@ -15,8 +15,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { sendChatMessage, ChatMessage, analyzeVerse } from '@/services/api';
 import { theme } from '@/constants/theme';
 import { WordInfo } from '@/types/morphology';
+import { usePreferences } from '@/context/PreferencesContext';
 
 export default function ChatScreen() {
+  const { aiModel } = usePreferences();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -73,7 +75,7 @@ export default function ChatScreen() {
          promptPayload = `Conversation History:\n${stringifiedHistory}\n\nUser Question: ${input}`;
       }
 
-      const response = await sendChatMessage(promptPayload, newMessages);
+      const response = await sendChatMessage(promptPayload, newMessages, undefined, aiModel);
       const assistantMsg: ChatMessage = { role: 'assistant', content: response.response };
       setMessages([...newMessages, assistantMsg]);
     } catch (error) {

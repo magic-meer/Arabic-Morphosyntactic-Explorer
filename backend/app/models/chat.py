@@ -31,6 +31,10 @@ class ChatRequest(BaseModel):
     include_verses: bool = Field(
         default=True, description="Whether to include relevant verses in the response"
     )
+    model: str = Field(
+        default="gemini-3.1-flash-lite-preview",
+        description="Gemini model to use for generation"
+    )
 
 
 class ChatResponse(BaseModel):

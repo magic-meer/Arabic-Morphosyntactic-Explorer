@@ -60,36 +60,41 @@ export interface WordAnalysisResponse {
   ai_explanation: string;
 }
 
-export const analyzeWord = async (word: string): Promise<WordAnalysisResponse> => {
-  try {
-    const response = await apiClient.post<WordAnalysisResponse>('/morphology/analyze-word', { word });
-    return response.data;
-  } catch (error) {
-    console.error('Word analysis failed', error);
-    throw error;
-  }
-};
+export const analyzeWord = async (word: string, model?: string): Promise<WordAnalysisResponse> => {
+   try {
+     const response = await apiClient.post<WordAnalysisResponse>('/morphology/analyze-word', { 
+       word,
+       model: model || 'gemini-3.1-flash-lite-preview'
+     });
+     return response.data;
+   } catch (error) {
+     console.error('Word analysis failed', error);
+     throw error;
+   }
+ };
 
 export const sendChatMessage = async (
-  message: string,
-  history: ChatMessage[],
-  verseContext?: string
-): Promise<ChatResponse> => {
-  try {
-    // If backend doesn't natively support message history arrays, we format the latest query
-    // Since the backend expects: message, context_verses, include_verses
-    // We optionally convert verseContext to the expected context_verses schema if provided.
-    // For now we just send the message to avoid 422 Payload Errors.
-    const response = await apiClient.post('/chat', {
-      message: message,
-      context_verses: [] 
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Chat request failed', error);
-    throw error;
-  }
-};
+   message: string,
+   history: ChatMessage[],
+   verseContext?: string,
+   model?: string
+ ): Promise<ChatResponse> => {
+   try {
+     // If backend doesn't natively support message history arrays, we format the latest query
+     // Since the backend expects: message, context_verses, include_verses
+     // We optionally convert verseContext to the expected context_verses schema if provided.
+     // For now we just send the message to avoid 422 Payload Errors.
+     const response = await apiClient.post('/chat', {
+       message: message,
+       context_verses: [],
+       model: model || 'gemini-3.1-flash-lite-preview'
+     });
+     return response.data;
+   } catch (error) {
+     console.error('Chat request failed', error);
+     throw error;
+   }
+ };
 
 export const getVerse = async (chapter: number, verse: number): Promise<VerseResponse> => {
   try {

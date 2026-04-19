@@ -5,7 +5,7 @@ import { theme } from '@/constants/theme';
 import { usePreferences } from '@/context/PreferencesContext';
 
 export default function SettingsScreen() {
-  const { isDarkMode, toggleDarkMode, isArabicUI, toggleArabicUI } = usePreferences();
+  const { isDarkMode, toggleDarkMode, isArabicUI, toggleArabicUI, aiModel, setAiModel } = usePreferences();
 
   return (
     <ScrollView style={[styles.container, !isDarkMode && styles.containerLight]} contentContainerStyle={styles.content}>
@@ -40,6 +40,42 @@ export default function SettingsScreen() {
             trackColor={{ false: '#767577', true: theme.colors.primary }}
           />
         </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>AI Model</Text>
+        <Text style={styles.sectionDescription}>Select the Gemini engine for analysis</Text>
+        
+        {[
+          { id: 'gemini-3.1-flash-lite-preview', label: 'Gemini 3.1 Flash Lite', note: 'Balanced & Fast (Default)' },
+          { id: 'gemini-3.0-flash', label: 'Gemini 3.0 Flash', note: 'Higher Intelligence' },
+          { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', note: 'Stable Performance' },
+          { id: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash Lite', note: 'Ultra Low Latency' }
+        ].map((model) => (
+          <TouchableOpacity 
+            key={model.id}
+            style={[
+              styles.modelRow, 
+              !isDarkMode && styles.surfaceLight,
+              aiModel === model.id && styles.modelSelected
+            ]}
+            onPress={() => setAiModel(model.id)}
+          >
+            <View style={styles.modelInfo}>
+              <Text style={[
+                styles.modelLabel, 
+                !isDarkMode && styles.textLight,
+                aiModel === model.id && styles.modelLabelSelected
+              ]}>
+                {model.label}
+              </Text>
+              <Text style={styles.modelNote}>{model.note}</Text>
+            </View>
+            {aiModel === model.id && (
+              <Ionicons name="checkmark-circle" size={24} color={theme.colors.primary} />
+            )}
+          </TouchableOpacity>
+        ))}
       </View>
 
       <View style={styles.section}>
@@ -133,5 +169,43 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
     fontSize: theme.typography.sizes.sm,
     fontFamily: theme.typography.fontFamilies.english,
+  },
+  sectionDescription: {
+    color: theme.colors.textSecondary,
+    fontSize: theme.typography.sizes.sm,
+    fontFamily: theme.typography.fontFamilies.english,
+    marginBottom: theme.spacing.md,
+  },
+  modelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: theme.colors.surface,
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    marginBottom: theme.spacing.sm,
+    borderWidth: 1,
+    borderColor: theme.colors.surfaceBorder,
+  },
+  modelSelected: {
+    borderColor: theme.colors.primary,
+    backgroundColor: theme.colors.primary + '10', // 10% opacity
+  },
+  modelInfo: {
+    flex: 1,
+  },
+  modelLabel: {
+    color: theme.colors.text,
+    fontSize: theme.typography.sizes.md,
+    fontFamily: theme.typography.fontFamilies.englishBold,
+  },
+  modelLabelSelected: {
+    color: theme.colors.primary,
+  },
+  modelNote: {
+    color: theme.colors.textSecondary,
+    fontSize: theme.typography.sizes.xs,
+    fontFamily: theme.typography.fontFamilies.english,
+    marginTop: 2,
   },
 });

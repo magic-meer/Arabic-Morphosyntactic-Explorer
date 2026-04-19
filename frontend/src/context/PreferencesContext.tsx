@@ -6,6 +6,8 @@ interface PreferencesContextType {
   toggleDarkMode: (value: boolean) => void;
   isArabicUI: boolean;
   toggleArabicUI: (value: boolean) => void;
+  aiModel: string;
+  setAiModel: (model: string) => void;
 }
 
 const PreferencesContext = createContext<PreferencesContextType | undefined>(undefined);
@@ -13,6 +15,7 @@ const PreferencesContext = createContext<PreferencesContextType | undefined>(und
 export function PreferencesProvider({ children }: { children: ReactNode }) {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isArabicUI, setIsArabicUI] = useState(I18nManager.isRTL);
+  const [aiModel, setAiModel] = useState('gemini-3.1-flash-lite-preview');
 
   const toggleDarkMode = (value: boolean) => {
     setIsDarkMode(value);
@@ -30,7 +33,14 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <PreferencesContext.Provider value={{ isDarkMode, toggleDarkMode, isArabicUI, toggleArabicUI }}>
+    <PreferencesContext.Provider value={{ 
+      isDarkMode, 
+      toggleDarkMode, 
+      isArabicUI, 
+      toggleArabicUI,
+      aiModel,
+      setAiModel
+    }}>
       {children}
     </PreferencesContext.Provider>
   );

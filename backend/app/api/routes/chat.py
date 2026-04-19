@@ -65,6 +65,7 @@ async def chat(
         user_message=request.message,
         include_verses=request.include_verses,
         specific_verses=specific_verses,
+        model_name=request.model,
     )
 
     # Convert context verses

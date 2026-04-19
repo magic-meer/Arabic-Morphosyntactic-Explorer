@@ -1,6 +1,6 @@
 """Gemini AI service for conversational Quranic tutoring."""
 
-from typing import Generator
+from typing import Generator, Optional
 
 from google import genai
 from google.genai import types
@@ -125,13 +125,14 @@ User question: {user_message}"""
         return [types.Content(role="user", parts=[types.Part(text=full_message)])]
 
     def generate_response(
-        self, user_message: str, context_verses: list[dict], cached: bool = True
+        self, user_message: str, context_verses: list[dict], model_name: Optional[str] = None, cached: bool = True
     ) -> str:
         """Generate a response to user message with context verses.
 
         Args:
             user_message: The user's question or message.
             context_verses: List of verse dictionaries to use as context.
+            model_name: Optional name of the Gemini model to use.
             cached: Whether to use/create context cache (default: True).
 
         Returns:
@@ -140,6 +141,7 @@ User question: {user_message}"""
         Raises:
             GeminiServiceError: If generation fails.
         """
+        model = model_name or self.MODEL_NAME
         try:
             context_text = self.format_context_verses(context_verses)
             
@@ -153,11 +155,10 @@ User question: {user_message}"""
                     cache_name = self._caches[cache_key]
                 else:
                     # Create new cache
-                    # Note: This is a demonstration of the Gemini 2.0 caching API
                     try:
-                        logger.info("Creating Gemini 2.0 context cache...")
+                        logger.info(f"Creating Gemini context cache for model {model}...")
                         cache = self._client.caches.create(
-                            model=self.MODEL_NAME,
+                            model=model,
                             config=types.CreateCachedContentConfig(
                                 system_instruction=SYSTEM_PROMPT,
                                 contents=[types.Content(role="user", parts=[types.Part(text=f"Context verses:\n{context_text}")])],
@@ -171,7 +172,7 @@ User question: {user_message}"""
 
             if cache_name:
                 response = self._client.models.generate_content(
-                    model=self.MODEL_NAME,
+                    model=model,
                     contents=[types.Content(role="user", parts=[types.Part(text=f"User question: {user_message}")])],
                     config=types.GenerateContentConfig(
                         cached_content=cache_name,
@@ -180,7 +181,7 @@ User question: {user_message}"""
             else:
                 contents = self._build_contents(user_message, context_verses)
                 response = self._client.models.generate_content(
-                    model=self.MODEL_NAME,
+                    model=model,
                     contents=contents,
                     config=types.GenerateContentConfig(
                         system_instruction=SYSTEM_PROMPT,
@@ -198,13 +199,14 @@ User question: {user_message}"""
             raise GeminiServiceError(f"Failed to generate response: {e}") from e
 
     def generate_response_streaming(
-        self, user_message: str, context_verses: list[dict]
+        self, user_message: str, context_verses: list[dict], model_name: Optional[str] = None
     ) -> Generator[str, None, None]:
         """Generate a streaming response to user message with context verses.
 
         Args:
             user_message: The user's question or message.
             context_verses: List of verse dictionaries to use as context.
+            model_name: Optional name of the Gemini model to use.
 
         Yields:
             Text chunks from the streaming response.
@@ -212,11 +214,12 @@ User question: {user_message}"""
         Raises:
             GeminiServiceError: If generation fails.
         """
+        model = model_name or self.MODEL_NAME
         try:
             contents = self._build_contents(user_message, context_verses)
 
             response = self._client.models.generate_content_stream(
-                model=self.MODEL_NAME,
+                model=model,
                 contents=contents,
                 config=types.GenerateContentConfig(
                     system_instruction=SYSTEM_PROMPT,

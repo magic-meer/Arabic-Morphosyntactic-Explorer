@@ -12,6 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { analyzeWord, WordAnalysisResponse } from '@/services/api';
 import { theme } from '@/constants/theme';
+import { usePreferences } from '@/context/PreferencesContext';
 
 const FEATURE_LABELS: Record<string, string> = {
   diac: 'Diacritized / مُشَكَّل',
@@ -32,6 +33,7 @@ const FEATURE_LABELS: Record<string, string> = {
 };
 
 export default function HomeScreen() {
+  const { aiModel } = usePreferences();
   const [word, setWord] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<WordAnalysisResponse | null>(null);
@@ -42,7 +44,7 @@ export default function HomeScreen() {
     setResult(null);
     Keyboard.dismiss();
     try {
-      const response = await analyzeWord(word.trim());
+      const response = await analyzeWord(word.trim(), aiModel);
       setResult(response);
     } catch (error) {
       console.error('Analysis failed', error);
